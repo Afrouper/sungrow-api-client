@@ -1,5 +1,9 @@
 # Sungrow API Client
 
+[![Java CI with Maven](https://github.com/Afrouper/sungrow-api-client/actions/workflows/maven.yml/badge.svg)](https://github.com/Afrouper/sungrow-api-client/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/Afrouper/sungrow-api-client/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Afrouper/sungrow-api-client/actions/workflows/github-code-scanning/codeql)
+[![Dependabot Updates](https://github.com/Afrouper/sungrow-api-client/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Afrouper/sungrow-api-client/actions/workflows/dependabot/dependabot-updates)
+
 API Client which uses the official API from the [sungrow developer portal](https://developer-api.isolarcloud.com/).
 
 The Client is still in development and not finished.
