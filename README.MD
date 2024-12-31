@@ -15,10 +15,33 @@ The Client is still in development and not finished.
 > I choose a very simple implementation to get this client used in different environments; without coming to "dependency hell".
 
 ## ToDos
-- [ ] Add github actions
+- [x] Add github actions for compile, dependabot and securiy issues
+- [ ] Add release action
 - [ ] Mock JUnit Test - and create more 
 - [ ] Deploy via Maven Central
 - [ ] Complete API
+
+# Usage
+You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
+credentials (see [Sungrow Developer Portal](#Sungrow Developer Portal))
+
+```java
+//Create client
+SungrowClient sungrowClient = new SungrowClient(
+    <URI>,
+    <App Key from Developer Portal>,
+    <SecretKey from Developer Portal>,
+    <Connect timeout>,
+    <Request timeout>);
+
+//login
+sungrowClient.login(<Account eMail>, <Account Password>);
+
+//Call APIs; First query your plants
+PlantList plantList = ApiOperationsFactory.getPlantList(); // <-- Factory for all API methods
+sungrowClient.execute(plantList);
+plantList.getResponse(); // <-- Work with response
+```
 
 # Sungrow Developer Portal
 
