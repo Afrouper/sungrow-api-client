@@ -31,7 +31,7 @@ class SungrowClientTest {
     }
 
     @Test
-    void login() throws Exception {
+    void login() {
         assertNotNull(sungrowClient);
     }
 
@@ -41,7 +41,7 @@ class SungrowClientTest {
 
         PlantList plantList = ApiOperationsFactory.getPlantList();
         sungrowClient.execute(plantList);
-        assertEquals("JUnit Test Plant", plantList.getResponse().getPlants().get(0).getPlantName());
+        assertEquals("JUnit Test Plant", plantList.getResponse().getPlants().getFirst().getPlantName());
     }
 
     @Test
