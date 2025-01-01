@@ -15,7 +15,7 @@ public class DeviceList extends BaseApiOperation<DeviceList.Request, DeviceList.
 
     @Override
     public String getPath() {
-        return "/openapi/getDeviceList";
+            return "/openapi/getDeviceList";
     }
 
     @Override

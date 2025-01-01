@@ -115,7 +115,7 @@ public class SungrowClient {
             json = send.body();
 
             if(send.statusCode() == 200) {
-                //System.out.println(json);
+                System.out.println(json);
                 Type baseResponseType = getResponseType(operation);
                 BaseResponse<?> baseResponse = gson.fromJson(json, baseResponseType);
 
