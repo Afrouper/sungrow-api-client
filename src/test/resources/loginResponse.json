@@ -1,0 +1,21 @@
+{
+  "req_serial_num": "202411114fa4436f9bc807bc966920ec",
+  "result_code": "1",
+  "result_msg": "success",
+  "result_data": {
+    "user_master_org_id": "89899046",
+    "mobile_tel": "153****5",
+    "user_name": "test user1",
+    "language": "Chinese",
+    "token": "999125867_91bbb35be9f74ccebb0406307ca80874",
+    "err_times": "0",
+    "user_id": "1",
+    "login_state": "1",
+    "disable_time": null,
+    "country_name": "China",
+    "user_account": "test user1",
+    "user_master_org_name": "org-ty1867erni",
+    "email": "",
+    "country_id": "1"
+  }
+}

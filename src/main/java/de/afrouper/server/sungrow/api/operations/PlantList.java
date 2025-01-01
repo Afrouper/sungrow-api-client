@@ -219,7 +219,7 @@ public class PlantList extends BaseApiOperation<PlantList.Request, PlantList.Res
         }
     }
 
-    public static enum PlantType {
+    public enum PlantType {
 
         @SerializedName("1")
         Utility_Plant,

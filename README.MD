@@ -16,8 +16,10 @@ The Client is still in development and not finished.
 
 ## ToDos
 - [x] Add github actions for compile, dependabot and securiy issues
+- [x] Add sample client for basic usage
 - [ ] Add release action
-- [ ] Mock JUnit Test - and create more 
+- [x] Mock JUnit Test
+- [ ] **More** JUnit Test
 - [ ] Deploy via Maven Central
 - [ ] Complete API
 
@@ -25,22 +27,26 @@ The Client is still in development and not finished.
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
 credentials (see [Sungrow Developer Portal](#Sungrow Developer Portal))
 
+A sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java). If not provided the needed properties are read from
+a Java SystemProperty and (if not found) from an environment variable:
+
+| SystemProperty / Environment variable | meaning                                                                 |
+|---------------------------------------|-------------------------------------------------------------------------|
+| APP_KEY                               | Your app key from Sungrow Developer Portal                              |
+| SECRET_KEY                            | Your secret key from Sungrow Developer Portal                           |
+| ACCOUNT_EMAIL                         | EMailadress used for login to Sungrow Developer Portal                  |
+| ACCOUNT_PASSWORD                      | Password used for login to Sungrow Developer Portal                     |
+| RSA_PUBLIC_KEY                        | (**Currently not Supported**) RSA Public key to call APIs E2E encrypted |
+
+The URL for accessing the correct cloud service is determined from the [Region](../src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
+
 ```java
-//Create client
-SungrowClient sungrowClient = new SungrowClient(
-    <URI>,
-    <App Key from Developer Portal>,
-    <SecretKey from Developer Portal>,
-    <Connect timeout>,
-    <Request timeout>);
+SungrowClient sungrowClient = SungrowClientFactory.createSungrowClient(SungrowClientFactory.Region.EUROPE);
+sungrowClient.login();
 
-//login
-sungrowClient.login(<Account eMail>, <Account Password>);
-
-//Call APIs; First query your plants
-PlantList plantList = ApiOperationsFactory.getPlantList(); // <-- Factory for all API methods
+PlantList plantList = ApiOperationsFactory.getPlantList();
 sungrowClient.execute(plantList);
-plantList.getResponse(); // <-- Work with response
+System.out.println("Plants: " + plantList.getResponse().getPlants());
 ```
 
 # Sungrow Developer Portal
@@ -55,13 +61,6 @@ Click 'Create Application'. After this fill out the needed informations and be s
 do **not** choose "OAuth2.0": 
 
 ![Authorization](img/authorization.png)
-
-## URLs
-This are the base URLs 
-* China: https://gateway.isolarcloud.com/
-* International: https://gateway.isolarcloud.com.hk/
-* Europe: https://gateway.isolarcloud.eu/
-* Australia: https://augateway.isolarcloud.com/
 
 # Develop new APIs
 Please read the docs at the [Developer Portal](https://developer-api.isolarcloud.com/#/document/md?id=10942&project_id=2&version=V1).

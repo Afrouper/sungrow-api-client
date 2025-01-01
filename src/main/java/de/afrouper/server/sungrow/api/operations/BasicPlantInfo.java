@@ -9,7 +9,7 @@ public class BasicPlantInfo extends BaseApiOperation<BasicPlantInfo.Request, Bas
 
     BasicPlantInfo(String deviceSerialNumber) {
         request = new Request();
-        request.serialNumber = "A2432500157";
+        request.serialNumber = deviceSerialNumber;
     }
 
     @Override
@@ -30,9 +30,9 @@ public class BasicPlantInfo extends BaseApiOperation<BasicPlantInfo.Request, Bas
 
     public static class Response {
         @SerializedName("design_capacity")
-        private String installedPower;
+        private Integer installedPower;
 
-        public String getInstalledPower() {
+        public Integer getInstalledPower() {
             return installedPower;
         }
     }

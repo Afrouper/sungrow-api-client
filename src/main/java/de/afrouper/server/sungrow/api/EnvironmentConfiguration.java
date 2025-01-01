@@ -4,21 +4,29 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 
-public class EnvironmentConfiguration {
+class EnvironmentConfiguration {
 
-    public static String getAppKey() {
+    static String getAppKey() {
         return get("APP_KEY", null);
     }
 
-    public static String getSecretKey() {
+    static String getSecretKey() {
         return get("SECRET_KEY", null);
     }
 
-    public static String getRSAPublicKey() {
+    static String getAccountEmail() {
+        return get("ACCOUNT_EMAIL", null);
+    }
+
+    static String getAccountPassword() {
+        return get("ACCOUNT_PASSWORD", null);
+    }
+
+    static String getRSAPublicKey() {
         return get("RSA_PUBLIC_KEY", null);
     }
 
-    public static URI getURI() {
+    static URI getURI() {
         try {
             return new URI(get("SUNGROW_URI", "https://gateway.isolarcloud.eu/"));
         } catch (URISyntaxException e) {
@@ -26,12 +34,12 @@ public class EnvironmentConfiguration {
         }
     }
 
-    public static Duration getConnectionTimeout() {
+    static Duration getConnectionTimeout() {
         String connectionTimeout = get("CONNECTION_TIMEOUT", "10");
         return Duration.ofSeconds(Integer.parseInt(connectionTimeout));
     }
 
-    public static Duration getRequestTimeout() {
+    static Duration getRequestTimeout() {
         String requestTimeout = get("REQUEST_TIMEOUT", "30");
         return Duration.ofSeconds(Integer.parseInt(requestTimeout));
     }

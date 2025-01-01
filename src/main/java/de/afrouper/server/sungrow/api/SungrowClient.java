@@ -28,7 +28,7 @@ public class SungrowClient {
     private LoginResponse loginResponse;
     private LocalDateTime lastAPICall;
 
-    public SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
+    SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
         Objects.requireNonNull(uri, "URI cannot be null");
         Objects.requireNonNull(appKey, "App key cannot be null");
         Objects.requireNonNull(secretKey, "Secret key cannot be null");
@@ -46,7 +46,11 @@ public class SungrowClient {
                 .create();
     }
 
-    public void login(String username, String password) throws IOException{
+    public void login() throws IOException {
+        login(EnvironmentConfiguration.getAccountEmail(), EnvironmentConfiguration.getAccountPassword());
+    }
+
+    public void login(String username, String password) throws IOException {
         try {
             HttpRequest request = HttpRequest.newBuilder(uri.resolve("/openapi/login"))
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new Login(username, password, appKey))))
@@ -111,7 +115,7 @@ public class SungrowClient {
             json = send.body();
 
             if(send.statusCode() == 200) {
-                System.out.println(json);
+                //System.out.println(json);
                 Type baseResponseType = getResponseType(operation);
                 BaseResponse<?> baseResponse = gson.fromJson(json, baseResponseType);
 
@@ -134,11 +138,9 @@ public class SungrowClient {
     private Type getResponseType(Object operation) {
         Type[] genericTypes;
 
-        if (operation.getClass().getGenericSuperclass() instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) operation.getClass().getGenericSuperclass();
+        if (operation.getClass().getGenericSuperclass() instanceof ParameterizedType parameterizedType) {
             genericTypes = parameterizedType.getActualTypeArguments();
-        } else if (operation.getClass().getGenericInterfaces().length > 0 && operation.getClass().getGenericInterfaces()[0] instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) operation.getClass().getGenericInterfaces()[0];
+        } else if (operation.getClass().getGenericInterfaces().length > 0 && operation.getClass().getGenericInterfaces()[0] instanceof ParameterizedType parameterizedType) {
             genericTypes = parameterizedType.getActualTypeArguments();
         } else {
             throw new IllegalArgumentException("Class not implementing an generic interface or extends a generic base class.");

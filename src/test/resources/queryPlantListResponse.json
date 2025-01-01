@@ -1,0 +1,29 @@
+{
+  "req_serial_num": "2024082695fb4e3fb844e653ed4924ce",
+  "result_code": "1",
+  "result_msg": "success",
+  "result_data": {
+    "pageList": [
+      {
+        "ps_name": "JUnit Test Plant",
+        "online_status": 0,
+        "latitude": 0,
+        "description": null,
+        "valid_flag": 1,
+        "grid_connection_status": 0,
+        "ps_fault_status": 1,
+        "ps_location": "Germany",
+        "update_time": "2024-08-26 14:03:38",
+        "ps_current_time_zone": "GMT-1",
+        "ps_id": 700666130,
+        "grid_connection_time": null,
+        "connect_type": 1,
+        "install_date": "2024-08-22 05:32:42",
+        "build_status": 2,
+        "ps_type": 5,
+        "longitude": 0
+      }
+    ],
+    "rowCount": 1
+  }
+}

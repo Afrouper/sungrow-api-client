@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DeviceList extends BaseApiOperation<DeviceList.Request, DeviceList.Response> {
 
-    private Request request;
+    private final Request request;
 
     DeviceList(String plantId) {
         request = new Request(plantId);
