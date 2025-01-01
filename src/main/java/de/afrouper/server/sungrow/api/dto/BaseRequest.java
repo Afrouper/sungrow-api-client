@@ -2,8 +2,6 @@ package de.afrouper.server.sungrow.api.dto;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Objects;
-
 public class BaseRequest {
 
     @SerializedName("appkey")

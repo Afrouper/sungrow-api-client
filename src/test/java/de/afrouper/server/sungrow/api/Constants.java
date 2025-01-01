@@ -1,6 +1,5 @@
 package de.afrouper.server.sungrow.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 
