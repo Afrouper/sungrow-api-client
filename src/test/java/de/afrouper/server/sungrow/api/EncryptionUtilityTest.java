@@ -27,7 +27,7 @@ class EncryptionUtilityTest {
     }
 
     @Test
-    public void encryptionRound() throws Exception {
+    public void encryptionRound() {
         EncryptionUtility encryptionUtility = new EncryptionUtility(rsaPublicKey, TEST_PASSWORD);
 
         ApiKeyParameter apiKeyParameter = encryptionUtility.createApiKeyParameter();

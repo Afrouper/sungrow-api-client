@@ -119,7 +119,7 @@ public class SungrowClient {
             headers.add("x-random-secret-key");
             headers.add(encryptionUtility.createRandomPublicKey());
         }
-        return headers.toArray(new String[headers.size()]);
+        return headers.toArray(new String[0]);
     }
 
     private void apiCallSuccess() {

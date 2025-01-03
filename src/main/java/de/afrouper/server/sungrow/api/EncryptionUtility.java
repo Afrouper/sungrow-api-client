@@ -65,10 +65,9 @@ class EncryptionUtility {
      **/
     String encrypt(String content) {
         try {
-            byte[] result = null;
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            result = cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
+            byte[] result = cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
             return parseByte2HexStr(result);
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
@@ -85,11 +84,10 @@ class EncryptionUtility {
      **/
     String decrypt(String content) {
         try {
-            byte[] original = null;
             byte[] decryptFrom = parseHexStr2Byte(content);
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            original = cipher.doFinal(decryptFrom);
+            byte[] original = cipher.doFinal(decryptFrom);
             return new String(original);
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
@@ -97,7 +95,7 @@ class EncryptionUtility {
     }
 
     private byte[] rsaSplitCodec(Cipher cipher, int opmode, byte[] datas, int keySize) throws IOException, GeneralSecurityException {
-        int maxBlock = 0;
+        int maxBlock;
         if(opmode == Cipher.DECRYPT_MODE){
             maxBlock = keySize / 8;
         }else{
@@ -136,7 +134,7 @@ class EncryptionUtility {
     }
 
     private String parseByte2HexStr(byte[] buf) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (byte b : buf) {
             String hex = Integer.toHexString(b & 0xFF);
             if (hex.length() == 1) {
