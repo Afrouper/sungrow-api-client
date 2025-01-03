@@ -17,6 +17,18 @@ public class SungrowClientFactory {
                 EnvironmentConfiguration.getRequestTimeout());
     }
 
+    public static SungrowClient createSungrowClientWithEncryption(Region region) {
+        SungrowClient sungrowClient = createSungrowClient(region);
+        sungrowClient.activateEncryption(EnvironmentConfiguration.getRSAPublicKey(), EnvironmentConfiguration.getApiCallPassword());
+        return sungrowClient;
+    }
+
+    public static SungrowClient createSungrowClient(Region region, String appKey, String secretKey, Duration connectionTimeout, Duration requestTimeout, String rsaPublicKey, String apiCallPassword) {
+        SungrowClient sungrowClient = createSungrowClient(region, appKey, secretKey, connectionTimeout, requestTimeout);
+        sungrowClient.activateEncryption(rsaPublicKey, apiCallPassword);
+        return sungrowClient;
+    }
+
     public static SungrowClient createSungrowClient(Region region, String appKey, String secretKey, Duration connectionTimeout, Duration requestTimeout) {
         return new SungrowClient(
                 region.getBaseUrl(),

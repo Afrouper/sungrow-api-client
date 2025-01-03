@@ -17,6 +17,7 @@ The Client is still in development and not finished.
 ## ToDos
 - [x] Add github actions for compile, dependabot and securiy issues
 - [x] Add sample client for basic usage
+- [x] Support encrypted API calls (open: Change password for each call)
 - [ ] Add release action
 - [x] Mock JUnit Test
 - [ ] **More** JUnit Test
@@ -30,13 +31,14 @@ credentials (see [Sungrow Developer Portal](#Sungrow Developer Portal))
 A sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java). If not provided the needed properties are read from
 a Java SystemProperty and (if not found) from an environment variable:
 
-| SystemProperty / Environment variable | meaning                                                                 |
-|---------------------------------------|-------------------------------------------------------------------------|
-| APP_KEY                               | Your app key from Sungrow Developer Portal                              |
-| SECRET_KEY                            | Your secret key from Sungrow Developer Portal                           |
-| ACCOUNT_EMAIL                         | EMailadress used for login to Sungrow Developer Portal                  |
-| ACCOUNT_PASSWORD                      | Password used for login to Sungrow Developer Portal                     |
-| RSA_PUBLIC_KEY                        | (**Currently not Supported**) RSA Public key to call APIs E2E encrypted |
+| SystemProperty / Environment variable | meaning                                                |
+|---------------------------------------|--------------------------------------------------------|
+| APP_KEY                               | Your app key from Sungrow Developer Portal             |
+| SECRET_KEY                            | Your secret key from Sungrow Developer Portal          |
+| ACCOUNT_EMAIL                         | EMailadress used for login to Sungrow Developer Portal |
+| ACCOUNT_PASSWORD                      | Password used for login to Sungrow Developer Portal    |
+| RSA_PUBLIC_KEY                        | RSA Public key to call APIs E2E encrypted              |
+| API_CALL_PASSWORD                     | Password for payload encryption                        |
 
 The URL for accessing the correct cloud service is determined from the [Region](../src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
 
