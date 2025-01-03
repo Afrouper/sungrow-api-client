@@ -4,6 +4,7 @@
 [![CodeQL](https://github.com/Afrouper/sungrow-api-client/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/Afrouper/sungrow-api-client/actions/workflows/github-code-scanning/codeql)
 [![Dependabot Updates](https://github.com/Afrouper/sungrow-api-client/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/Afrouper/sungrow-api-client/actions/workflows/dependabot/dependabot-updates)
 ![Tests](https://img.shields.io/endpoint?label=Tests&url=https://gist.githubusercontent.com/Afrouper/4b8ce8c93b2a3a92b777d51914cb1e6b/raw/9352822e575e3f75afef51f26f1b5e9125c526dc/sungrow-api-client-junit-tests.json)
+![Tests](https://img.shields.io/endpoint?label=Test%20Coverage&url=https://gist.githubusercontent.com/Afrouper/4b8ce8c93b2a3a92b777d51914cb1e6b/raw/cb93d70bb0200fe0aa820ea4231f625bb71d5c65/sungrow-api-client-jacoco-coverage.json)
 
 API Client which uses the official API from the [sungrow developer portal](https://developer-api.isolarcloud.com/).
 
