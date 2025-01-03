@@ -1,15 +1,15 @@
 package de.afrouper.server.sungrow.api;
 
-import com.google.gson.Gson;
 import de.afrouper.server.sungrow.api.dto.ApiKeyParameter;
-import de.afrouper.server.sungrow.api.dto.Login;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.util.Base64;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EncryptionUtilityTest {
 

@@ -2,7 +2,8 @@ package de.afrouper.server.sungrow.api;
 
 import de.afrouper.server.sungrow.api.dto.ApiKeyParameter;
 
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
