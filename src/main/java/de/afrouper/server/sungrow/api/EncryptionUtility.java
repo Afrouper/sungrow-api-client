@@ -65,7 +65,7 @@ class EncryptionUtility {
      **/
     String encrypt(String content) {
         try {
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES"); //documented is unsecure "AES/ECB/PKCS5Padding"
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] result = cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
             return parseByte2HexStr(result);
@@ -85,7 +85,7 @@ class EncryptionUtility {
     String decrypt(String content) {
         try {
             byte[] decryptFrom = parseHexStr2Byte(content);
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] original = cipher.doFinal(decryptFrom);
             return new String(original);
