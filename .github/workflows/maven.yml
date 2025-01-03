@@ -31,3 +31,9 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B verify --file pom.xml
+
+      - name: CI Badges
+        uses: gaelgirodon/ci-badges-action@v1
+        with:
+          gist-id: ci-badges
+          token: ${{ secrets.GIST_TOKEN }}
