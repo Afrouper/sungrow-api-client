@@ -26,6 +26,10 @@ class EnvironmentConfiguration {
         return get("RSA_PUBLIC_KEY", null);
     }
 
+    static String getApiCallPassword() {
+        return get("API_CALL_PASSWORD", null);
+    }
+
     static URI getURI() {
         try {
             return new URI(get("SUNGROW_URI", "https://gateway.isolarcloud.eu/"));

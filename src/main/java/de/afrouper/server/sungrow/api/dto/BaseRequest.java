@@ -13,6 +13,9 @@ public class BaseRequest {
     @SerializedName("lang")
     private Language language;
 
+    @SerializedName("api_key_param")
+    private ApiKeyParameter apiKey;
+
     public BaseRequest() {
         setLanguage(Language.ENGLISH);
     }
@@ -39,5 +42,13 @@ public class BaseRequest {
 
     public void setLanguage(Language language) {
         this.language = language;
+    }
+
+    public ApiKeyParameter getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(ApiKeyParameter apiKey) {
+        this.apiKey = apiKey;
     }
 }

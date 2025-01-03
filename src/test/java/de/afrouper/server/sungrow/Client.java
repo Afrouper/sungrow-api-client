@@ -23,7 +23,7 @@ public class Client {
     }
 
     private void executeSample() throws IOException {
-        sungrowClient = SungrowClientFactory.createSungrowClient(SungrowClientFactory.Region.EUROPE);
+        sungrowClient = SungrowClientFactory.createSungrowClientWithEncryption(SungrowClientFactory.Region.EUROPE);
         sungrowClient.login();
 
         PlantList plantList = ApiOperationsFactory.getPlantList();
@@ -48,8 +48,12 @@ public class Client {
     }
 
     private void handleDevice(DeviceList.Device device) {
+        System.out.println("****************************************************************");
         try {
+            //if(DeviceList.DeviceType.device.getDeviceType())
             System.out.println("Handling device: " + device.getDeviceName() + " with serial " + device.getSerial());
+            System.out.println(device.getDeviceType());
+            System.out.println(device.getDeviceTypeName());
             BasicPlantInfo basicPlantInfo = ApiOperationsFactory.getBasicPlantInfo(device.getSerial());
             sungrowClient.execute(basicPlantInfo);
 
@@ -59,5 +63,6 @@ public class Client {
         catch (IOException e) {
             System.err.println("Error handling device " + device.getDeviceName() + ": " + e.getMessage());
         }
+        System.out.println("****************************************************************");
     }
 }

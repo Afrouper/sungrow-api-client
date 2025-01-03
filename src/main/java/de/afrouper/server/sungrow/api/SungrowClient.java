@@ -15,6 +15,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SungrowClient {
@@ -26,6 +28,7 @@ public class SungrowClient {
     private final URI uri;
     private final Gson gson;
     private LoginResponse loginResponse;
+    private EncryptionUtility encryptionUtility;
     private LocalDateTime lastAPICall;
 
     SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
@@ -44,6 +47,11 @@ public class SungrowClient {
                 .build();
         gson = new GsonBuilder()
                 .create();
+
+    }
+
+    void activateEncryption(String rsaPublicKey, String password) {
+        encryptionUtility = new EncryptionUtility(rsaPublicKey, password);
     }
 
     public void login() throws IOException {
@@ -52,15 +60,30 @@ public class SungrowClient {
 
     public void login(String username, String password) throws IOException {
         try {
+            Login login = new Login(username, password, appKey);
+
+            String json;
+            if(encryptionUtility != null) {
+                login.setApiKey(encryptionUtility.createApiKeyParameter());
+                json = encryptionUtility.encrypt(gson.toJson(login));
+            }
+            else {
+                json = gson.toJson(login);
+            }
+
             HttpRequest request = HttpRequest.newBuilder(uri.resolve("/openapi/login"))
-                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(new Login(username, password, appKey))))
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(requestTimeout)
                     .headers(getDefaultHeaders())
                     .build();
 
             HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            String body = send.body();
+            if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
+                body = encryptionUtility.decrypt(body);
+            }
             if (send.statusCode() == 200) {
-                LoginResponse loginResponse = gson.fromJson(send.body(), LoginResponse.class);
+                LoginResponse loginResponse = gson.fromJson(body, LoginResponse.class);
                 if(loginResponse.isSuccess()) {
                     LoginResponse.LoginResult loginResult = loginResponse.getData();
                     if(loginResult.getLoginState().equals(LoginState.SUCCESS)) {
@@ -72,11 +95,11 @@ public class SungrowClient {
                     }
                 }
                 else {
-                    throw new IOException("Login error: '" + send.body() + "'");
+                    throw new IOException("Login error: '" + body + "'");
                 }
             }
             else {
-                throw new IOException("Login failed. ResponseCode " + send.statusCode() + ": '" + send.body() + "'");
+                throw new IOException("Login failed. ResponseCode " + send.statusCode() + ": '" + body + "'");
             }
         }
         catch (InterruptedException e) {
@@ -85,11 +108,18 @@ public class SungrowClient {
     }
 
     private String[] getDefaultHeaders() {
-        return new String[] {
-                "Content-Type", "application/json",
-                "x-access-key", secretKey,
-                "sys_code", "901"
-        };
+        List<String> headers = new ArrayList<>();
+        headers.add("Content-Type");
+        headers.add("application/json");
+        headers.add("x-access-key");
+        headers.add(secretKey);
+        headers.add("sys_code");
+        headers.add("901");
+        if(encryptionUtility != null) {
+            headers.add("x-random-secret-key");
+            headers.add(encryptionUtility.createRandomPublicKey());
+        }
+        return headers.toArray(new String[headers.size()]);
     }
 
     private void apiCallSuccess() {
@@ -100,38 +130,53 @@ public class SungrowClient {
         if(operation.getMethod() != APIOperation.Method.POST) {
             throw new IOException("Method not supported: " + operation.getMethod());
         }
-        String json = null;
+        String jsonResponse = null;
         try {
             BaseRequest baseRequest = operation.getRequest();
             baseRequest.setAppKey(appKey);
             baseRequest.setToken(loginResponse.getData().getToken());
+
+            String jsonRequest;
+            if(encryptionUtility != null) {
+                baseRequest.setApiKey(encryptionUtility.createApiKeyParameter());
+                jsonRequest = encryptionUtility.encrypt(gson.toJson(baseRequest));
+            }
+            else {
+                jsonRequest = gson.toJson(baseRequest);
+            }
+
             HttpRequest request = HttpRequest.newBuilder(uri.resolve(operation.getPath()))
-                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(baseRequest)))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
                     .timeout(requestTimeout)
                     .headers(getDefaultHeaders())
                     .build();
 
             HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            json = send.body();
+            jsonResponse = send.body();
+            if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
+                jsonResponse = encryptionUtility.decrypt(jsonResponse);
+            }
 
             if(send.statusCode() == 200) {
-                //System.out.println(json);
+                //System.out.println(jsonResponse);
                 Type baseResponseType = getResponseType(operation);
-                BaseResponse<?> baseResponse = gson.fromJson(json, baseResponseType);
+                BaseResponse<?> baseResponse = gson.fromJson(jsonResponse, baseResponseType);
 
                 if("1".equals(baseResponse.getErrorCode())) {
                     apiCallSuccess();
                     operation.setResponse(baseResponse.getData());
                 }
                 else {
-                    throw new IOException("Operation error: '" + json + "'");
+                    throw new IOException("Operation error: '" + jsonResponse + "'");
                 }
             }
             else {
-                throw new IOException("Operation failed. ResponseCode " + send.statusCode() + ": '" + json + "'");
+                throw new IOException("Operation failed. ResponseCode " + send.statusCode() + ": '" + jsonResponse + "'");
             }
         } catch (InterruptedException | NumberFormatException e) {
-            throw new RuntimeException("Unable to execute Operation. Json from server: '" + json + "'.", e);
+            throw new RuntimeException("Unable to execute Operation. Json from server: '" + jsonResponse + "'.", e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
