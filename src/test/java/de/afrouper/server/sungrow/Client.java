@@ -2,12 +2,11 @@ package de.afrouper.server.sungrow;
 
 import de.afrouper.server.sungrow.api.SungrowClient;
 import de.afrouper.server.sungrow.api.SungrowClientFactory;
-import de.afrouper.server.sungrow.api.operations.ApiOperationsFactory;
-import de.afrouper.server.sungrow.api.operations.BasicPlantInfo;
-import de.afrouper.server.sungrow.api.operations.DeviceList;
-import de.afrouper.server.sungrow.api.operations.PlantList;
+import de.afrouper.server.sungrow.api.operations.*;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Client {
 
@@ -41,10 +40,19 @@ public class Client {
             DeviceList.Response deviceListResponse = deviceList.getResponse();
             System.out.println("Handling " + deviceListResponse.getRowCount() + " devices for " + plant.getPlantName());
             deviceListResponse.getDevices().forEach(this::handleDevice);
+
+            queryRealtimeData(deviceListResponse);
         }
         catch (IOException e) {
             System.err.println("Error handling plant " + plant.getPlantId() + ": " + e.getMessage());
         }
+    }
+
+    private void queryRealtimeData(DeviceList.Response deviceListResponse) throws IOException {
+        List<String> serials = deviceListResponse.getDevices().stream().map(DeviceList.Device::getSerial).collect(Collectors.toList());
+        RealtimeData realtimeData = ApiOperationsFactory.getRealtimeData(serials);
+        sungrowClient.execute(realtimeData);
+        System.out.println(realtimeData.getResponse());
     }
 
     private void handleDevice(DeviceList.Device device) {

@@ -8,13 +8,9 @@ public class BasicPlantInfo extends BaseApiOperation<BasicPlantInfo.Request, Bas
     private final Request request;
 
     BasicPlantInfo(String deviceSerialNumber) {
+        super("/openapi/getPowerStationDetail");
         request = new Request();
         request.serialNumber = deviceSerialNumber;
-    }
-
-    @Override
-    public String getPath() {
-        return "/openapi/getPowerStationDetail";
     }
 
     @Override

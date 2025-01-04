@@ -9,11 +9,7 @@ import java.util.List;
 public class PlantList extends BaseApiOperation<PlantList.Request, PlantList.Response> {
 
     PlantList() {
-    }
-
-    @Override
-    public String getPath() {
-        return "/openapi/getPowerStationList";
+        super("/openapi/getPowerStationList");
     }
 
     @Override
