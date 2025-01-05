@@ -8,13 +8,9 @@ public class BasicPlantInfo extends BaseApiOperation<BasicPlantInfo.Request, Bas
     private final Request request;
 
     BasicPlantInfo(String deviceSerialNumber) {
+        super("/openapi/getPowerStationDetail");
         request = new Request();
         request.serialNumber = deviceSerialNumber;
-    }
-
-    @Override
-    public String getPath() {
-        return "/openapi/getPowerStationDetail";
     }
 
     @Override
@@ -25,6 +21,14 @@ public class BasicPlantInfo extends BaseApiOperation<BasicPlantInfo.Request, Bas
     public static class Request extends BaseRequest {
         @SerializedName("sn")
         private String serialNumber;
+
+        public String getSerialNumber() {
+            return serialNumber;
+        }
+
+        public void setSerialNumber(String serialNumber) {
+            this.serialNumber = serialNumber;
+        }
     }
 
     public static class Response {

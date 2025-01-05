@@ -10,12 +10,8 @@ public class DeviceList extends BaseApiOperation<DeviceList.Request, DeviceList.
     private final Request request;
 
     DeviceList(String plantId) {
+        super("/openapi/getDeviceList");
         request = new Request(plantId);
-    }
-
-    @Override
-    public String getPath() {
-            return "/openapi/getDeviceList";
     }
 
     @Override
