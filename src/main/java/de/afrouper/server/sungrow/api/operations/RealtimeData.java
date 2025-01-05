@@ -3,8 +3,6 @@ package de.afrouper.server.sungrow.api.operations;
 import com.google.gson.annotations.SerializedName;
 import de.afrouper.server.sungrow.api.dto.BaseRequest;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
