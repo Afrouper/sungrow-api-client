@@ -50,11 +50,11 @@ public class SungrowClient {
         encryptionUtility = new EncryptionUtility(rsaPublicKey, password);
     }
 
-    public void login() throws IOException {
+    public void login() {
         login(EnvironmentConfiguration.getAccountEmail(), EnvironmentConfiguration.getAccountPassword());
     }
 
-    public void login(String username, String password) throws IOException {
+    public void login(String username, String password) {
         JsonObject loginRequest = new JsonObject();
         loginRequest.addProperty("user_account", username);
         loginRequest.addProperty("user_password", password);
@@ -64,7 +64,7 @@ public class SungrowClient {
             this.loginResponse = loginResponse;
         }
         else {
-            throw new IOException("Login error. State: " + loginResponse.login_state() );
+            throw new SungrowApiException("Login error. State: " + loginResponse.login_state());
         }
     }
 
@@ -153,16 +153,25 @@ public class SungrowClient {
                     return gson.fromJson(jsonObject.getAsJsonObject("result_data"), responseType);
                 }
                 else {
-                    throw new IOException("ResultCode: '" + resultCode + "', ResultMsg: '" + resultMsg + "', RequestSerial: " + requestSerial);
+                    throw new SungrowApiException(resultMsg, resultCode, requestSerial);
                 }
             }
             else {
-                throw new IOException("Operation failed. ResponseCode " + send.statusCode() + ": '" + jsonResponse + "'");
+                //Try to parse - perhaps the answer is json...
+                try {
+                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
+                    String requestSerial = jsonObject.getAsJsonPrimitive("req_serial_num").getAsString();
+                    String resultCode = jsonObject.getAsJsonPrimitive("result_code").getAsString();
+                    String resultMsg = jsonObject.getAsJsonPrimitive("result_msg").getAsString();
+                    throw new SungrowApiException("HTTP Status " + send.statusCode() + ", Message: " + resultMsg, resultCode, requestSerial);
+                }
+                catch (Throwable t) {
+                    // NOP - no Json from server...
+                    throw new SungrowApiException("HTTP Status " + send.statusCode() + ", Body: " + jsonResponse);
+                }
             }
-        } catch (InterruptedException | NumberFormatException e) {
+        } catch (InterruptedException | NumberFormatException | IOException e) {
             throw new RuntimeException("Unable to execute Operation. Json from server: '" + jsonResponse + "'.", e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }

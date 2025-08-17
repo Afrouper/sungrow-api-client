@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import de.afrouper.server.sungrow.api.dto.DeviceList;
 import de.afrouper.server.sungrow.api.dto.PlantList;
 import de.afrouper.server.sungrow.api.dto.RealTimeData;
+import de.afrouper.server.sungrow.api.dto.SungrowApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @WireMockTest
 class SungrowClientTest {
@@ -34,6 +34,17 @@ class SungrowClientTest {
     @Test
     void login() {
         assertNotNull(sungrowClient);
+    }
+
+    @Test
+    void failLogin(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+        stub("/openapi/login", "loginRequest_Fail.json", "loginResponse_Fail.json");
+        SungrowApiException ex = assertThrows(
+                SungrowApiException.class,
+                () -> Constants.createFailTestClient(wireMockRuntimeInfo.getHttpPort())
+        );
+        assertTrue(ex.getMessage().contains("error"));
+        assertEquals("42", ex.getResultCode());
     }
 
     @Test
