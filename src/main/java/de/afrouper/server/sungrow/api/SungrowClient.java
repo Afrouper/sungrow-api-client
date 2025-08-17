@@ -1,25 +1,18 @@
 package de.afrouper.server.sungrow.api;
 
 import com.google.gson.*;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import de.afrouper.server.sungrow.api.dto.*;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class SungrowClient {
@@ -32,7 +25,6 @@ public class SungrowClient {
     private final Gson gson;
     private LoginResponse loginResponse;
     private EncryptionUtility encryptionUtility;
-    private LocalDateTime lastAPICall;
 
     SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
         Objects.requireNonNull(uri, "URI cannot be null");
@@ -70,7 +62,6 @@ public class SungrowClient {
         LoginResponse loginResponse = executeRequest("/openapi/login", loginRequest, LoginResponse.class);
         if(LoginState.SUCCESS.equals(loginResponse.login_state())) {
             this.loginResponse = loginResponse;
-            apiCallSuccess();
         }
         else {
             throw new IOException("Login error. State: " + loginResponse.login_state() );
@@ -92,11 +83,7 @@ public class SungrowClient {
         return headers.toArray(new String[0]);
     }
 
-    private void apiCallSuccess() {
-        lastAPICall = LocalDateTime.now();
-    }
-
-    public PlantList getPlants() throws IOException {
+    public PlantList getPlants() {
         JsonObject request = new JsonObject();
 
         request.addProperty("curPage", 1);
@@ -115,7 +102,7 @@ public class SungrowClient {
         return executeRequest("/openapi/getDeviceList", request, DeviceList.class);
     }
 
-    public RealTimeData getRealTimeData(List<String> serials) throws IOException {
+    public RealTimeData getRealTimeData(List<String> serials) {
         JsonObject request = new JsonObject();
 
         request.add("sn_list", gson.toJsonTree(serials));
@@ -123,7 +110,7 @@ public class SungrowClient {
         return executeRequest("/openapi/getPVInverterRealTimeData", request, RealTimeData.class);
     }
 
-    private <T> T executeRequest(String subPath, JsonObject request, Class<T> responseType) throws IOException {
+    private <T> T executeRequest(String subPath, JsonObject request, Class<T> responseType) {
         request.add("lang", gson.toJsonTree(Language.ENGLISH));
         request.addProperty("appkey", appKey);
         if(loginResponse != null) {
@@ -163,7 +150,6 @@ public class SungrowClient {
                 String resultMsg = jsonObject.getAsJsonPrimitive("result_msg").getAsString();
 
                 if("1".equals(resultCode)) {
-                    apiCallSuccess();
                     return gson.fromJson(jsonObject.getAsJsonObject("result_data"), responseType);
                 }
                 else {

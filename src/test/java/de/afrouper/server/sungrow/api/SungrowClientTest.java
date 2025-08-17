@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,6 +77,9 @@ class SungrowClientTest {
 
     private String readResource(String name) {
         InputStream inputStream = getClass().getResourceAsStream(name);
+        if(inputStream == null) {
+            throw new IllegalStateException("Resource not found: " + name);
+        }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (Exception e) {
