@@ -5,12 +5,6 @@ public class SungrowApiException extends RuntimeException {
     private final String resultCode;
     private final String requestSerial;
 
-    public SungrowApiException(String message, String resultCode, String requestSerial, Throwable cause) {
-        super(message, cause);
-        this.resultCode = resultCode;
-        this.requestSerial = requestSerial;
-    }
-
     public SungrowApiException(String message, String resultCode, String requestSerial) {
         super(message);
         this.resultCode = resultCode;

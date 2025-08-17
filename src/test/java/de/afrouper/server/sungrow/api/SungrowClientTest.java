@@ -37,7 +37,7 @@ class SungrowClientTest {
     }
 
     @Test
-    void failLogin(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+    void failLogin(WireMockRuntimeInfo wireMockRuntimeInfo) {
         stub("/openapi/login", "loginRequest_Fail.json", "loginResponse_Fail.json");
         SungrowApiException ex = assertThrows(
                 SungrowApiException.class,
@@ -48,7 +48,7 @@ class SungrowClientTest {
     }
 
     @Test
-    void plantList() throws Exception {
+    void plantList() {
         stub("/openapi/getPowerStationList", "queryPlantListRequest.json", "queryPlantListResponse.json");
 
         PlantList plantList = sungrowClient.getPlants();
@@ -65,7 +65,7 @@ class SungrowClientTest {
     }
 
     @Test
-    void realtimeData() throws Exception {
+    void realtimeData() {
         stub("/openapi/getPVInverterRealTimeData", "realtimeDataRequest.json", "realtimeDataResponse.json");
 
         List<String> serials = Arrays.asList("SN_1", "SN_2", "SN_3");
