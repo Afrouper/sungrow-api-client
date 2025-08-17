@@ -48,9 +48,10 @@ class EncryptionUtility {
     }
 
     ApiKeyParameter createApiKeyParameter() {
-        ApiKeyParameter apiKeyParameter = new ApiKeyParameter();
-        apiKeyParameter.setNonce(UUID.randomUUID().toString().replaceAll("-", ""));
-        apiKeyParameter.setTimestamp(Long.toString(System.currentTimeMillis()));
+        ApiKeyParameter apiKeyParameter = new ApiKeyParameter(
+                UUID.randomUUID().toString().replaceAll("-", ""),
+                Long.toString(System.currentTimeMillis())
+        );
         return apiKeyParameter;
     }
 

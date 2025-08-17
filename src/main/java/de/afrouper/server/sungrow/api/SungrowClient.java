@@ -1,7 +1,7 @@
 package de.afrouper.server.sungrow.api;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import de.afrouper.server.sungrow.api.dto.*;
 
@@ -14,9 +14,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class SungrowClient {
@@ -46,6 +49,7 @@ public class SungrowClient {
                 .connectTimeout(connectTimeout)
                 .build();
         gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
 
     }
@@ -59,51 +63,17 @@ public class SungrowClient {
     }
 
     public void login(String username, String password) throws IOException {
-        try {
-            Login login = new Login(username, password, appKey);
+        JsonObject loginRequest = new JsonObject();
+        loginRequest.addProperty("user_account", username);
+        loginRequest.addProperty("user_password", password);
 
-            String json;
-            if(encryptionUtility != null) {
-                login.setApiKey(encryptionUtility.createApiKeyParameter());
-                json = encryptionUtility.encrypt(gson.toJson(login));
-            }
-            else {
-                json = gson.toJson(login);
-            }
-
-            HttpRequest request = HttpRequest.newBuilder(uri.resolve("/openapi/login"))
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .timeout(requestTimeout)
-                    .headers(getDefaultHeaders())
-                    .build();
-
-            HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            String body = send.body();
-            if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
-                body = encryptionUtility.decrypt(body);
-            }
-            if (send.statusCode() == 200) {
-                LoginResponse loginResponse = gson.fromJson(body, LoginResponse.class);
-                if(loginResponse.isSuccess()) {
-                    LoginResponse.LoginResult loginResult = loginResponse.getData();
-                    if(loginResult.getLoginState().equals(LoginState.SUCCESS)) {
-                        this.loginResponse = loginResponse;
-                        apiCallSuccess();
-                    }
-                    else {
-                        throw new IOException("Login error " + loginResult.getLoginState() + ", Message:" + loginResult.getMessage());
-                    }
-                }
-                else {
-                    throw new IOException("Login error: '" + body + "'");
-                }
-            }
-            else {
-                throw new IOException("Login failed. ResponseCode " + send.statusCode() + ": '" + body + "'");
-            }
+        LoginResponse loginResponse = executeRequest("/openapi/login", loginRequest, LoginResponse.class);
+        if(LoginState.SUCCESS.equals(loginResponse.login_state())) {
+            this.loginResponse = loginResponse;
+            apiCallSuccess();
         }
-        catch (InterruptedException e) {
-            throw new IOException("Interrupted while initializing Client", e);
+        else {
+            throw new IOException("Login error. State: " + loginResponse.login_state() );
         }
     }
 
@@ -126,48 +96,78 @@ public class SungrowClient {
         lastAPICall = LocalDateTime.now();
     }
 
-    public void execute(APIOperation operation) throws IOException {
-        if(operation.getMethod() != APIOperation.Method.POST) {
-            throw new IOException("Method not supported: " + operation.getMethod());
+    public PlantList getPlants() throws IOException {
+        JsonObject request = new JsonObject();
+
+        request.addProperty("curPage", 1);
+        request.addProperty("size", 10);
+
+        return executeRequest("/openapi/getPowerStationList", request, PlantList.class);
+    }
+
+    public DeviceList getDevices(String plantId) throws IOException {
+        JsonObject request = new JsonObject();
+
+        request.addProperty("curPage", 1);
+        request.addProperty("size", 10);
+        request.addProperty("ps_id", plantId);
+
+        return executeRequest("/openapi/getDeviceList", request, DeviceList.class);
+    }
+
+    public RealTimeData getRealTimeData(List<String> serials) throws IOException {
+        JsonObject request = new JsonObject();
+
+        request.add("sn_list", gson.toJsonTree(serials));
+
+        return executeRequest("/openapi/getPVInverterRealTimeData", request, RealTimeData.class);
+    }
+
+    private <T> T executeRequest(String subPath, JsonObject request, Class<T> responseType) throws IOException {
+        request.add("lang", gson.toJsonTree(Language.ENGLISH));
+        request.addProperty("appkey", appKey);
+        if(loginResponse != null) {
+            request.addProperty("token", (loginResponse.token()));
         }
+
+        String jsonRequest;
+        if(encryptionUtility != null) {
+            JsonElement apiKeyParameter = gson.toJsonTree(encryptionUtility.createApiKeyParameter());
+            request.add("api_key_param", apiKeyParameter);
+            jsonRequest = encryptionUtility.encrypt(gson.toJson(request));
+        }
+        else {
+            jsonRequest = gson.toJson(request);
+        }
+
+        HttpRequest httpRequest = HttpRequest.newBuilder(uri.resolve(subPath))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
+                .timeout(requestTimeout)
+                .headers(getDefaultHeaders())
+                .build();
+
         String jsonResponse = null;
         try {
-            BaseRequest baseRequest = operation.getRequest();
-            baseRequest.setAppKey(appKey);
-            baseRequest.setToken(loginResponse.getData().getToken());
-
-            String jsonRequest;
-            if(encryptionUtility != null) {
-                baseRequest.setApiKey(encryptionUtility.createApiKeyParameter());
-                jsonRequest = encryptionUtility.encrypt(gson.toJson(baseRequest));
-            }
-            else {
-                jsonRequest = gson.toJson(baseRequest);
-            }
-
-            HttpRequest request = HttpRequest.newBuilder(uri.resolve(operation.getPath()))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
-                    .timeout(requestTimeout)
-                    .headers(getDefaultHeaders())
-                    .build();
-
-            HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            HttpResponse<String> send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             jsonResponse = send.body();
             if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
                 jsonResponse = encryptionUtility.decrypt(jsonResponse);
             }
+            System.out.println(jsonResponse);
 
             if(send.statusCode() == 200) {
-                //System.out.println(jsonResponse);
-                Type baseResponseType = getResponseType(operation);
-                BaseResponse<?> baseResponse = gson.fromJson(jsonResponse, baseResponseType);
+                JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
 
-                if("1".equals(baseResponse.getErrorCode())) {
+                String requestSerial = jsonObject.getAsJsonPrimitive("req_serial_num").getAsString();
+                String resultCode = jsonObject.getAsJsonPrimitive("result_code").getAsString();
+                String resultMsg = jsonObject.getAsJsonPrimitive("result_msg").getAsString();
+
+                if("1".equals(resultCode)) {
                     apiCallSuccess();
-                    operation.setResponse(baseResponse.getData());
+                    return gson.fromJson(jsonObject.getAsJsonObject("result_data"), responseType);
                 }
                 else {
-                    throw new IOException("Operation error: '" + jsonResponse + "'");
+                    throw new IOException("ResultCode: '" + resultCode + "', ResultMsg: '" + resultMsg + "', RequestSerial: " + requestSerial);
                 }
             }
             else {
@@ -178,19 +178,5 @@ public class SungrowClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private Type getResponseType(Object operation) {
-        Type[] genericTypes;
-
-        if (operation.getClass().getGenericSuperclass() instanceof ParameterizedType parameterizedType) {
-            genericTypes = parameterizedType.getActualTypeArguments();
-        } else if (operation.getClass().getGenericInterfaces().length > 0 && operation.getClass().getGenericInterfaces()[0] instanceof ParameterizedType parameterizedType) {
-            genericTypes = parameterizedType.getActualTypeArguments();
-        } else {
-            throw new IllegalArgumentException("Class not implementing an generic interface or extends a generic base class.");
-        }
-        Type resType = genericTypes[1];
-        return TypeToken.getParameterized(BaseResponse.class, resType).getType();
     }
 }

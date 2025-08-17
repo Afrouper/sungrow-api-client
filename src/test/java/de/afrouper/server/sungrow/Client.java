@@ -2,7 +2,7 @@ package de.afrouper.server.sungrow;
 
 import de.afrouper.server.sungrow.api.SungrowClient;
 import de.afrouper.server.sungrow.api.SungrowClientFactory;
-import de.afrouper.server.sungrow.api.operations.*;
+import de.afrouper.server.sungrow.api.dto.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,52 +25,31 @@ public class Client {
         sungrowClient = SungrowClientFactory.createSungrowClientWithEncryption(SungrowClientFactory.Region.EUROPE);
         sungrowClient.login();
 
-        PlantList plantList = ApiOperationsFactory.getPlantList();
-        sungrowClient.execute(plantList);
+        PlantList plants = sungrowClient.getPlants();
+        System.out.println(plants);
 
-        plantList.getResponse().getPlants().forEach(this::handlePlants);
+        plants.plants().forEach(this::handlePlants);
     }
 
-    private void handlePlants(PlantList.Plant plant) {
+    private void handlePlants(Plant plant) {
         try {
-            System.out.println("Reading Devices for Plant: " + plant.getPlantName());
-            DeviceList deviceList = ApiOperationsFactory.getDeviceList(plant.getPlantId());
-            sungrowClient.execute(deviceList);
+            System.out.println("Reading Devices for Plant: " + plant.plantName());
+            DeviceList deviceList = sungrowClient.getDevices(plant.plantId());
 
-            DeviceList.Response deviceListResponse = deviceList.getResponse();
-            System.out.println("Handling " + deviceListResponse.getRowCount() + " devices for " + plant.getPlantName());
-            deviceListResponse.getDevices().forEach(this::handleDevice);
+            System.out.println("Handling " + deviceList.rowCount() + " devices for " + plant.plantName());
+            System.out.println(deviceList);
 
-            queryRealtimeData(deviceListResponse);
+            queryRealtimeData(deviceList);
         }
         catch (IOException e) {
-            System.err.println("Error handling plant " + plant.getPlantId() + ": " + e.getMessage());
+            System.err.println("Error handling plant " + plant.plantId() + ": " + e.getMessage());
         }
     }
 
-    private void queryRealtimeData(DeviceList.Response deviceListResponse) throws IOException {
-        List<String> serials = deviceListResponse.getDevices().stream().map(DeviceList.Device::getSerial).collect(Collectors.toList());
-        RealtimeData realtimeData = ApiOperationsFactory.getRealtimeData(serials);
-        sungrowClient.execute(realtimeData);
-        System.out.println(realtimeData.getResponse());
+    private void queryRealtimeData(DeviceList deviceList) throws IOException {
+        List<String> serials = deviceList.devices().stream().map(Device::serial).collect(Collectors.toList());
+        RealTimeData realTimeData = sungrowClient.getRealTimeData(serials);
+        System.out.println(realTimeData);
     }
 
-    private void handleDevice(DeviceList.Device device) {
-        System.out.println("****************************************************************");
-        try {
-            //if(DeviceList.DeviceType.device.getDeviceType())
-            System.out.println("Handling device: " + device.getDeviceName() + " with serial " + device.getSerial());
-            System.out.println(device.getDeviceType());
-            System.out.println(device.getDeviceTypeName());
-            BasicPlantInfo basicPlantInfo = ApiOperationsFactory.getBasicPlantInfo(device.getSerial());
-            sungrowClient.execute(basicPlantInfo);
-
-            BasicPlantInfo.Response response = basicPlantInfo.getResponse();
-            System.out.println("Installed Power for " + device.getDeviceName() + ": " + response.getInstalledPower());
-        }
-        catch (IOException e) {
-            System.err.println("Error handling device " + device.getDeviceName() + ": " + e.getMessage());
-        }
-        System.out.println("****************************************************************");
-    }
 }

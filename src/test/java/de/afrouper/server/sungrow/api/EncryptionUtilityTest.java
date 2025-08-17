@@ -32,8 +32,8 @@ class EncryptionUtilityTest {
 
         ApiKeyParameter apiKeyParameter = encryptionUtility.createApiKeyParameter();
         assertNotNull(apiKeyParameter);
-        assertNotNull(apiKeyParameter.getNonce());
-        assertNotNull(apiKeyParameter.getTimestamp());
+        assertNotNull(apiKeyParameter.nonce());
+        assertNotNull(apiKeyParameter.timestamp());
 
         String encrypt = encryptionUtility.encrypt(PAYLOAD);
         String decrypt = encryptionUtility.decrypt(encrypt);
