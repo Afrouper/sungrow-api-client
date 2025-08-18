@@ -1,0 +1,38 @@
+{
+  "req_serial_num":"20241127cf2a4725ac6ebd9e9caeab59",
+  "result_code":"1",
+  "result_msg":"success",
+  "result_data":{
+    "design_capacity":11000.0,
+    "alarm_count":0,
+    "ps_key":"974621_11_0_0",
+    "latitude":33.07597603786331,
+    "description":null,
+    "ps_price_kwh":"1",
+    "ps_fault_status":3,
+    "ps_type_name":"户用光伏",
+    "build_status":2,
+    "install_date":"2023-06-13 15:40:56",
+    "ps_type":4,
+    "email":null,
+    "longitude":112.60275055975228,
+    "param_income_unit_name":"元",
+    "ps_price":"0.001",
+    "ps_name":"李庚莲11kwB2313140126",
+    "share_user_type":null,
+    "ps_location":"河南省南阳市南召县太山庙乡张沟村核西组456号",
+    "share_type":"0",
+    "ps_current_time_zone":"GMT+8",
+    "user_moble_tel":"13037650202",
+    "ps_id":974621,
+    "communication_dev_detail_list":[
+      {
+        "is_enable":1,
+        "sn":"B2313140126"
+      }
+    ],
+    "connect_type":1,
+    "ps_status":1,
+    "fault_count":0
+  }
+}

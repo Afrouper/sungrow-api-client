@@ -11,7 +11,7 @@ public record BasicPlantInfo(
         String plantPs_key,
 
         @SerializedName("connect_type")
-        GridConnectionType connectType,
+        ConnectType connectType,
 
         String description,
 
@@ -31,6 +31,15 @@ public record BasicPlantInfo(
         PlantType plantType,
 
         @SerializedName("ps_type_name")
-        String plantTypeName
+        String plantTypeName,
+
+        String email,
+
+        Double latitude,
+
+        Double longitude,
+
+        @SerializedName("ps_current_time_zone")
+        String currentTimeZone
 ) {
 }

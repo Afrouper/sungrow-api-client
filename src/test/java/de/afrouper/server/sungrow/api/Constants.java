@@ -17,10 +17,9 @@ public class Constants {
         return sungrowClient;
     }
 
-    static SungrowClient createFailTestClient(int port) throws Exception {
+    static void createFailTestClient(int port) throws Exception {
         URI uri = new URI("http://localhost:" + port);
         SungrowClient sungrowClient = SungrowClientFactory.createSungrowClient(uri, APP_KEY, SECRET_KEY, Duration.ofSeconds(10), Duration.ofSeconds(30));
         sungrowClient.login(EMAIL_FAIL, PASSWORD);
-        return sungrowClient;
     }
 }
