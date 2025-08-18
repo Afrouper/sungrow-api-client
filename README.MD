@@ -20,11 +20,13 @@ The Client is still in development and not finished.
 - [x] Add github actions for compile, dependabot and securiy issues
 - [x] Add sample client for basic usage
 - [x] Support encrypted API calls (open: Change password for each call)
+- [ ] Add OAuth2 Support
 - [ ] Add release action
 - [x] Mock JUnit Test
 - [ ] **More** JUnit Test
 - [ ] Deploy via Maven Central
-- [ ] Complete API
+- [x] Complete API Calls for reading
+- [ ] Complete API Calls for writing
 
 # Usage
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
@@ -44,13 +46,18 @@ a Java SystemProperty and (if not found) from an environment variable:
 
 The URL for accessing the correct cloud service is determined from the [Region](../src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
 
+## Java Sample
+
+A simple sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java).
+Its Output (with a german installation) can be seen [here](docs/Output.MD)
+
+Or a very simple step:
 ```java
-SungrowClient sungrowClient = SungrowClientFactory.createSungrowClient(SungrowClientFactory.Region.EUROPE);
+sungrowClient = SungrowClientFactory.createSungrowClientWithEncryption(SungrowClientFactory.Region.EUROPE);
 sungrowClient.login();
 
-PlantList plantList = ApiOperationsFactory.getPlantList();
-sungrowClient.execute(plantList);
-System.out.println("Plants: " + plantList.getResponse().getPlants());
+PlantList plants = sungrowClient.getPlants();
+// Handle Plants and devices - see de.afrouper.server.sungrow.Client
 ```
 
 # Sungrow Developer Portal
@@ -69,5 +76,5 @@ do **not** choose "OAuth2.0":
 # Develop new APIs
 Please read the docs at the [Developer Portal](https://developer-api.isolarcloud.com/#/document/md?id=10942&project_id=2&version=V1).
 
-To create a new API refer the existing one such as `de.afrouper.server.sungrow.api.operations.DeviceList`.
+To create a new API refer the existing one such as `de.afrouper.server.sungrow.api.operations.DeviceList_D`.
 You have to create a class per API and the corresponding request and response objects.

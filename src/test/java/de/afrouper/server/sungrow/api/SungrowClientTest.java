@@ -3,20 +3,19 @@ package de.afrouper.server.sungrow.api;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import de.afrouper.server.sungrow.api.operations.*;
+import de.afrouper.server.sungrow.api.dto.DeviceList;
+import de.afrouper.server.sungrow.api.dto.PlantList;
+import de.afrouper.server.sungrow.api.dto.SungrowApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @WireMockTest
 class SungrowClientTest {
@@ -35,40 +34,31 @@ class SungrowClientTest {
     }
 
     @Test
-    void plantList() throws Exception {
+    void failLogin(WireMockRuntimeInfo wireMockRuntimeInfo) {
+        stub("/openapi/login", "loginRequest_Fail.json", "loginResponse_Fail.json");
+        SungrowApiException ex = assertThrows(
+                SungrowApiException.class,
+                () -> Constants.createFailTestClient(wireMockRuntimeInfo.getHttpPort())
+        );
+        assertTrue(ex.getMessage().contains("error"));
+        assertEquals("42", ex.getResultCode());
+    }
+
+    @Test
+    void plantList() {
         stub("/openapi/getPowerStationList", "queryPlantListRequest.json", "queryPlantListResponse.json");
 
-        PlantList plantList = ApiOperationsFactory.getPlantList();
-        sungrowClient.execute(plantList);
-        assertEquals("JUnit Test Plant", plantList.getResponse().getPlants().getFirst().getPlantName());
+        PlantList plantList = sungrowClient.getPlants();
+        assertEquals("JUnit Test Plant", plantList.plants().getFirst().plantName());
+        assertEquals("585", plantList.plants().getFirst().currentPower().value());
     }
 
     @Test
-    void deviceList() throws Exception {
+    void deviceList() {
         stub("/openapi/getDeviceList", "queryDeviceListRequest.json", "queryDeviceListResponse.json");
 
-        DeviceList deviceList = ApiOperationsFactory.getDeviceList("689661");
-        sungrowClient.execute(deviceList);
-        assertEquals(5, deviceList.getResponse().getRowCount());
-    }
-
-    @Test
-    void basicPlantInfo() throws Exception {
-        stub("/openapi/getPowerStationDetail", "queryBasicPlantInfoRequest.json", "queryBasicPlantInfoResponse.json");
-
-        BasicPlantInfo basicPlantInfo = ApiOperationsFactory.getBasicPlantInfo("B2313140126");
-        sungrowClient.execute(basicPlantInfo);
-        assertEquals(11000, basicPlantInfo.getResponse().getInstalledPower());
-    }
-
-    @Test
-    void realtimeData() throws Exception {
-        stub("/openapi/getPVInverterRealTimeData", "realtimeDataRequest.json", "realtimeDataResponse.json");
-
-        List<String> serials = Arrays.asList("SN_1", "SN_2", "SN_3");
-        RealtimeData realtimeData = ApiOperationsFactory.getRealtimeData(serials);
-        sungrowClient.execute(realtimeData);
-        assertEquals(3, realtimeData.getResponse().getDevicePoints().size());
+        DeviceList deviceList = sungrowClient.getDevices("689661");
+        assertEquals(5, deviceList.rowCount());
     }
 
     private void stub(String path, String requestFile, String responseFile) {
@@ -86,6 +76,9 @@ class SungrowClientTest {
 
     private String readResource(String name) {
         InputStream inputStream = getClass().getResourceAsStream(name);
+        if(inputStream == null) {
+            throw new IllegalStateException("Resource not found: " + name);
+        }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (Exception e) {

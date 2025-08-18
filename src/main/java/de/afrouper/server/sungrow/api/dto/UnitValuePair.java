@@ -1,7 +1,7 @@
 package de.afrouper.server.sungrow.api.dto;
 
-public class UnitValuePair {
+public record UnitValuePair (
 
-    private String unit;
-    private String value;
-}
+    String unit,
+    String value
+){}

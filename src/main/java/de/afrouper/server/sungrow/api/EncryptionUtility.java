@@ -48,10 +48,10 @@ class EncryptionUtility {
     }
 
     ApiKeyParameter createApiKeyParameter() {
-        ApiKeyParameter apiKeyParameter = new ApiKeyParameter();
-        apiKeyParameter.setNonce(UUID.randomUUID().toString().replaceAll("-", ""));
-        apiKeyParameter.setTimestamp(Long.toString(System.currentTimeMillis()));
-        return apiKeyParameter;
+        return new ApiKeyParameter(
+                UUID.randomUUID().toString().replaceAll("-", ""),
+                Long.toString(System.currentTimeMillis())
+        );
     }
 
     /**
@@ -85,6 +85,7 @@ class EncryptionUtility {
     String decrypt(String content) {
         try {
             byte[] decryptFrom = parseHexStr2Byte(content);
+            Objects.requireNonNull(decryptFrom, "Decrypt from string is null");
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] original = cipher.doFinal(decryptFrom);
