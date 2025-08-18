@@ -25,7 +25,8 @@ The Client is still in development and not finished.
 - [x] Mock JUnit Test
 - [ ] **More** JUnit Test
 - [ ] Deploy via Maven Central
-- [ ] Complete API
+- [x] Complete API Calls for reading
+- [ ] Complete API Calls for writing
 
 # Usage
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
@@ -45,11 +46,18 @@ a Java SystemProperty and (if not found) from an environment variable:
 
 The URL for accessing the correct cloud service is determined from the [Region](../src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
 
+## Java Sample
+
+A simple sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java).
+Its Output (with a german installation) can be seen [here](docs/Output.MD)
+
+Or a very simple step:
 ```java
 sungrowClient = SungrowClientFactory.createSungrowClientWithEncryption(SungrowClientFactory.Region.EUROPE);
 sungrowClient.login();
 
 PlantList plants = sungrowClient.getPlants();
+// Handle Plants and devices - see de.afrouper.server.sungrow.Client
 ```
 
 # Sungrow Developer Portal

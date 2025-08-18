@@ -1,7 +1,5 @@
 package de.afrouper.server.sungrow.api;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Duration;
 
 class EnvironmentConfiguration {

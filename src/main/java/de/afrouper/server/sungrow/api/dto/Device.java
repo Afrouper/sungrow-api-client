@@ -22,6 +22,12 @@ public record Device(
         String deviceTypeName,
 
         @SerializedName("device_model_code")
-        String modelCode
+        String modelCode,
+
+        @SerializedName("device_model_id")
+        String deviceModelId,
+
+        @SerializedName("firmware_version_info")
+        String firmwareVersion
 ) {
 }

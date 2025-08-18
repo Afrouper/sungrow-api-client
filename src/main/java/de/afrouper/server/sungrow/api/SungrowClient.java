@@ -42,6 +42,8 @@ public class SungrowClient {
                 .build();
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(DevicePoint.class, new DevicePointAdapter())
+                .registerTypeAdapter(DevicePointInfoList.class, new DevicePointInfoListAdapter())
                 .create();
 
     }
@@ -92,7 +94,7 @@ public class SungrowClient {
         return executeRequest("/openapi/getPowerStationList", request, PlantList.class);
     }
 
-    public DeviceList getDevices(String plantId) throws IOException {
+    public DeviceList getDevices(String plantId) {
         JsonObject request = new JsonObject();
 
         request.addProperty("curPage", 1);
@@ -102,12 +104,34 @@ public class SungrowClient {
         return executeRequest("/openapi/getDeviceList", request, DeviceList.class);
     }
 
-    public RealTimeData getRealTimeData(List<String> serials) {
+    public DevicePointList getDeviceRealTimeData(DeviceType deviceType, List<String> plantPsKeys, List<String> measuringPoints) {
         JsonObject request = new JsonObject();
 
-        request.add("sn_list", gson.toJsonTree(serials));
+        request.add("device_type", gson.toJsonTree(deviceType));
+        request.add("point_id_list", gson.toJsonTree(measuringPoints));
+        request.add("ps_key_list", gson.toJsonTree(plantPsKeys));
 
-        return executeRequest("/openapi/getPVInverterRealTimeData", request, RealTimeData.class);
+        return  executeRequest("/openapi/getDeviceRealTimeData", request, DevicePointList.class);
+    }
+
+    public DevicePointInfoList getOpenPointInfo(DeviceType deviceType, String deviceModelId) {
+        JsonObject request = new JsonObject();
+
+        request.add("device_type", gson.toJsonTree(deviceType));
+        request.addProperty("device_model_id", deviceModelId);
+        request.addProperty("type", 2);
+        request.addProperty("curPage", 1);
+        request.addProperty("size", 999);
+
+        return  executeRequest("/openapi/getOpenPointInfo", request, DevicePointInfoList.class);
+    }
+
+    public BasicPlantInfo getBasicPlantInfo(String serial) {
+        JsonObject request = new JsonObject();
+
+        request.addProperty("sn", serial);
+
+        return executeRequest("/openapi/getPowerStationDetail", request, BasicPlantInfo.class);
     }
 
     private <T> T executeRequest(String subPath, JsonObject request, Class<T> responseType) {
@@ -121,7 +145,8 @@ public class SungrowClient {
         if(encryptionUtility != null) {
             JsonElement apiKeyParameter = gson.toJsonTree(encryptionUtility.createApiKeyParameter());
             request.add("api_key_param", apiKeyParameter);
-            jsonRequest = encryptionUtility.encrypt(gson.toJson(request));
+            jsonRequest = gson.toJson(request);
+            jsonRequest = encryptionUtility.encrypt(jsonRequest);
         }
         else {
             jsonRequest = gson.toJson(request);
@@ -140,14 +165,13 @@ public class SungrowClient {
             if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
                 jsonResponse = encryptionUtility.decrypt(jsonResponse);
             }
-            System.out.println(jsonResponse);
 
             if(send.statusCode() == 200) {
                 JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
 
-                String requestSerial = jsonObject.getAsJsonPrimitive("req_serial_num").getAsString();
-                String resultCode = jsonObject.getAsJsonPrimitive("result_code").getAsString();
-                String resultMsg = jsonObject.getAsJsonPrimitive("result_msg").getAsString();
+                String requestSerial = getAsString(jsonObject, "req_serial_num");
+                String resultCode = getAsString(jsonObject, "result_code");
+                String resultMsg = getAsString(jsonObject, "result_msg");
 
                 if("1".equals(resultCode)) {
                     return gson.fromJson(jsonObject.getAsJsonObject("result_data"), responseType);
@@ -172,6 +196,20 @@ public class SungrowClient {
             }
         } catch (InterruptedException | NumberFormatException | IOException e) {
             throw new RuntimeException("Unable to execute Operation. Json from server: '" + jsonResponse + "'.", e);
+        }
+    }
+
+    private String getAsString(JsonObject jsonObject, String memberName) {
+        JsonPrimitive jsonPrimitive = jsonObject.getAsJsonPrimitive(memberName);
+        if(jsonPrimitive != null) {
+            if (jsonPrimitive.isString()) {
+                return jsonPrimitive.getAsString();
+            } else {
+                return jsonPrimitive.toString();
+            }
+        }
+        else {
+            return null;
         }
     }
 }

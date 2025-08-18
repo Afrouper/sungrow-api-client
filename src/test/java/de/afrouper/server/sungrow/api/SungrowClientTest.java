@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import de.afrouper.server.sungrow.api.dto.DeviceList;
 import de.afrouper.server.sungrow.api.dto.PlantList;
-import de.afrouper.server.sungrow.api.dto.RealTimeData;
 import de.afrouper.server.sungrow.api.dto.SungrowApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -53,24 +50,15 @@ class SungrowClientTest {
 
         PlantList plantList = sungrowClient.getPlants();
         assertEquals("JUnit Test Plant", plantList.plants().getFirst().plantName());
-        assertEquals(Double.valueOf(585), plantList.plants().getFirst().currentPower().value());
+        assertEquals("585", plantList.plants().getFirst().currentPower().value());
     }
 
     @Test
-    void deviceList() throws Exception {
+    void deviceList() {
         stub("/openapi/getDeviceList", "queryDeviceListRequest.json", "queryDeviceListResponse.json");
 
         DeviceList deviceList = sungrowClient.getDevices("689661");
         assertEquals(5, deviceList.rowCount());
-    }
-
-    @Test
-    void realtimeData() {
-        stub("/openapi/getPVInverterRealTimeData", "realtimeDataRequest.json", "realtimeDataResponse.json");
-
-        List<String> serials = Arrays.asList("SN_1", "SN_2", "SN_3");
-        RealTimeData realTimeData = sungrowClient.getRealTimeData(serials);
-        assertEquals(3, realTimeData.devicePoints().size());
     }
 
     private void stub(String path, String requestFile, String responseFile) {

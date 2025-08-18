@@ -1,9 +1,11 @@
+```java
 package de.afrouper.server.sungrow;
 
 import de.afrouper.server.sungrow.api.SungrowClient;
 import de.afrouper.server.sungrow.api.SungrowClientFactory;
 import de.afrouper.server.sungrow.api.dto.*;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,3 +79,5 @@ public class Client {
         });
     }
 }
+
+```

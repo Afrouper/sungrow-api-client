@@ -2,6 +2,8 @@ package de.afrouper.server.sungrow.api.dto;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Map;
+
 public record DevicePoint(
 
         @SerializedName("dev_fault_status")
@@ -20,9 +22,8 @@ public record DevicePoint(
         Long deviceUpdateTime,
 
         @SerializedName("uuid")
-        String uuid
+        String uuid,
 
-        // See more fields at https://developer-api.isolarcloud.com/#/document/api?id=10955&project_id=2&version=V1
-        // Perhaps better provide data as map?
+        Map<String, String> pointIds
 ) {
 }
