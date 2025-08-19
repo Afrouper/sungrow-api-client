@@ -6,6 +6,41 @@
     <artifactId>sungrow-api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <name>Sungrow API Client</name>
+    <description>Java client for the official Sungrow iSolarCloud API</description>
+    <url>https://github.com/Afrouper/sungrow-api-client</url>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/Afrouper/sungrow-api-client</url>
+        <connection>scm:git:git://github.com/Afrouper/sungrow-api-client.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:Afrouper/sungrow-api-client.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>Afrouper</id>
+            <name>Christian Kemper</name>
+            <email>dev@bestof5.de</email>
+            <roles><role>author</role></roles>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <repository>
+            <id>local</id>
+            <url>file://${project.build.directory}/staging-deploy</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -95,6 +130,44 @@
                 </executions>
             </plugin>
 
+            <!-- Source and Javadoc files -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals><goal>jar</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals><goal>jar</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JReleaser Maven Plugin -->
+            <plugin>
+                <groupId>org.jreleaser</groupId>
+                <artifactId>jreleaser-maven-plugin</artifactId>
+                <version>1.19.0</version>
+                <configuration>
+                    <configFile>jreleaser.yaml</configFile>
+                </configuration>
+                <executions>
+                    <!-- local tests -->
+                    <execution>
+                        <id>jreleaser-assemble</id>
+                        <goals>
+                            <goal>assemble</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
