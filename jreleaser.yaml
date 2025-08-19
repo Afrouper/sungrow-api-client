@@ -21,7 +21,8 @@ release:
     tagName: v{{projectVersion}}
     releaseName: v{{projectVersion}}
     draft: false
-    #prerelease: false
+    prerelease:
+      enabled: false
     sign: false
     changelog:
       formatted: ALWAYS
@@ -42,6 +43,8 @@ deploy:
     mavenCentral:
       sonatype:
         active: ALWAYS
+        url: https://central.sonatype.com/api/v1/publisher
+        applyMavenCentralRules: true
         username: env:OSSRH_USER
         password: env:OSSRH_TOKEN
 
