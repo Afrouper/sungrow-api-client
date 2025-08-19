@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (z.B. 1.2.0)'
+        required: false
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+      id-token: write
+    env:
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+      GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+      JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine version
+        id: vars
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            # Tag-Name 'v1.2.0' -> Version '1.2.0'
+            REF="${GITHUB_REF##*/}"
+            VERSION="${REF#v}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Set project version (if mismatch)
+        shell: bash
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          CURRENT=$(mvn -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:3.5.0:exec)
+          if [ "$CURRENT" != "$VERSION" ]; then
+            mvn -B versions:set -DnewVersion="$VERSION"
+            mvn -B versions:commit
+          fi
+
+      - name: Build with Maven (sources + javadocs)
+        run: mvn -B -P release -DskipTests package
+
+      - name: JReleaser full release
+        run: mvn -B -P release -DskipTests jreleaser:full-release
