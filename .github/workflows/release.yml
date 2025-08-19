@@ -67,30 +67,6 @@ jobs:
             mvn -B versions:commit
           fi
 
-      - name: Verify GPG secrets
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Schreibe Secrets in Dateien (genau so, wie sie aus den Secrets kommen)
-          cat > pub.asc <<'EOF'
-          ${GPG_PUBLIC_KEY}
-          EOF
-          cat > sec.asc <<'EOF'
-          ${GPG_SECRET_KEY}
-          EOF
-
-          # Header prüfen
-          grep -q "BEGIN PGP PUBLIC KEY BLOCK" pub.asc || { echo "PUBLIC header fehlt/falsch"; exit 1; }
-          grep -q "BEGIN PGP PRIVATE KEY BLOCK" sec.asc || { echo "PRIVATE header fehlt/falsch"; exit 1; }
-  
-          # Import testen
-          gpg --batch --quiet --import pub.asc || { echo "Import public key fehlgeschlagen"; exit 1; }
-          gpg --batch --quiet --import sec.asc || { echo "Import private key fehlgeschlagen"; exit 1; }
-  
-          # Optional: Fingerprints anzeigen (für Debugging)
-          gpg -k || true
-          gpg -K || true
-
       - name: Build with Maven (sources + javadocs)
         run: mvn -P release -DskipTests -Dgpg.passphrase=”${GPG_PASSPHRASE}” -DaltDeploymentRepository=local::default::file:target/staging-deploy deploy
 
