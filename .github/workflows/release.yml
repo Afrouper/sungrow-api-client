@@ -71,4 +71,4 @@ jobs:
         run: mvn -P release -DskipTests -Dgpg.passphrase=”${GPG_PASSPHRASE}” -DaltDeploymentRepository=local::default::file:target/staging-deploy deploy
 
       - name: JReleaser full release
-        run: mvn -B -P release -DskipTests jreleaser:full-release
+        run: mvn -B -X -P release -DskipTests jreleaser:full-release
