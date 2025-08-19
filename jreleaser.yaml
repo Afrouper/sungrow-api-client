@@ -33,7 +33,6 @@ release:
 signing:
   active: ALWAYS
   armored: true
-  mode: COMMAND
   publicKey: env:GPG_PUBLIC_KEY
   secretKey: env:GPG_SECRET_KEY
   passphrase: env:GPG_PASSPHRASE
