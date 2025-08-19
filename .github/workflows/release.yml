@@ -68,7 +68,7 @@ jobs:
           fi
 
       - name: Build with Maven (sources + javadocs)
-        run: mvn -B -P release -DskipTests package
+        run: mvn -P release -DskipTests -Dgpg.passphrase=”${GPG_PASSPHRASE}” -DaltDeploymentRepository=local::default::file:target/staging-deploy deploy
 
       - name: JReleaser full release
         run: mvn -B -P release -DskipTests jreleaser:full-release
