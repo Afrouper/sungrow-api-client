@@ -37,12 +37,6 @@ signing:
   secretKey: env:GPG_SECRET_KEY
   passphrase: env:GPG_PASSPHRASE
 
-assemble:
-  maven:
-    active: ALWAYS
-    directories:
-      - target/staging-deploy
-
 deploy:
   maven:
     active: ALWAYS
