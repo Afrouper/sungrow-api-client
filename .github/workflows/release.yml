@@ -51,7 +51,7 @@ jobs:
           server-username: "${{ secrets.OSSRH_USER }}"
           server-password: "${{ secrets.OSSRH_TOKEN }}"
           gpg-private-key: "${{ secrets.GPG_SECRET_KEY }}"
-          gpg-passphrase: "${{ secrets.GPG_PASSPHRASE }}"
+          gpg-passphrase: "GPG_PASSPHRASE"
 
       - name: Import public GPG key
         run: echo "${{ secrets.GPG_PUBLIC_KEY }}" | gpg --import --yes --always-trust
