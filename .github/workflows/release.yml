@@ -24,51 +24,94 @@ jobs:
       GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
-      JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK
+      - name: Resolve version
+        id: ver
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "VERSION=${GITHUB_REF##*/v}" >> "$GITHUB_ENV"
+          else
+            echo "VERSION=${{ github.event.inputs.version }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup JDK and settings.xml
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: 'maven'
+          server-id: central
+          server-username: OSSRH_USER
+          server-password: OSSRH_TOKEN
+          gpg-private-key: GPG_SECRET_KEY
+          gpg-passphrase: GPG_PASSPHRASE
 
-      - name: Configure Git user
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Import public GPG key
+        run: echo "${{ secrets.GPG_PUBLIC_KEY }}" | gpg --import
 
-      - name: Determine version
-        id: vars
-        shell: bash
+      - name: Set release version in POM
+        run: mvn --batch-mode versions:set -DnewVersion=$VERSION
+
+      - name: Build & sign artifacts
+        run: mvn --batch-mode -P release verify -DskipTests
+
+      - name: Deploy to Maven Central
         run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+          mvn --batch-mode -P release deploy -DskipTests \
+              -DperformRelease=true \
+              -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USER }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          PREV=$(git describe --tags --abbrev=0 $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+          if [[ -n "$PREV" ]]; then
+            CHANGELOG="$(git log $PREV..HEAD --pretty=format:'- %s' --no-merges)"
           else
-            # Tag-Name 'v1.2.0' -> Version '1.2.0'
-            REF="${GITHUB_REF##*/}"
-            VERSION="${REF#v}"
+            CHANGELOG="$(git log --pretty=format:'- %s' --no-merges -n 50)"
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Release version: $VERSION"
 
-      - name: Set project version (if mismatch)
-        shell: bash
+          cat <<EOF > RELEASE_NOTES.md
+          ## Maven Central
+          \`\`\`xml
+          <dependency>
+            <groupId>io.github.afrouper</groupId>
+            <artifactId>sungrow-api-client</artifactId>
+            <version>$VERSION</version>
+          </dependency>
+          \`\`\`
+
+          ## Changes
+          $CHANGELOG
+          EOF
+
+      - name: Create release (and upload JARs)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            target/sungrow-api-client-${{ env.VERSION }}.jar
+            target/sungrow-api-client-${{ env.VERSION }}-sources.jar
+            target/sungrow-api-client-${{ env.VERSION }}-javadoc.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push tag (for manual workflow)
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          VERSION="${{ steps.vars.outputs.version }}"
-          CURRENT=$(mvn -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:3.5.0:exec)
-          if [ "$CURRENT" != "$VERSION" ]; then
-            mvn -B versions:set -DnewVersion="$VERSION"
-            mvn -B versions:commit
-          fi
-
-      - name: Build with Maven (sources + javadocs)
-        run: mvn -P release -DskipTests -Dgpg.passphrase=”${GPG_PASSPHRASE}” -DaltDeploymentRepository=local::default::file:target/staging-deploy deploy
-
-      - name: JReleaser full release
-        run: mvn -B -P release -DskipTests jreleaser:full-release
+          git config user.name 'GitHub Actions'
+          git config user.email 'actions@github.com'
+          git tag -a v$VERSION -m "Release $VERSION"
+          git push origin v$VERSION
