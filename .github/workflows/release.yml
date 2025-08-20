@@ -66,10 +66,10 @@ jobs:
         run: |
           mvn --batch-mode -P release deploy -DskipTests \
               -DperformRelease=true \
-              -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+              -Dgpg.passphrase="${{ secrets.GPG_PASSPHRASE }}"
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USER }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_USERNAME: "${{ secrets.OSSRH_USER }}"
+          MAVEN_PASSWORD: "${{ secrets.OSSRH_TOKEN }}"
 
       - name: Generate release notes
         id: notes
