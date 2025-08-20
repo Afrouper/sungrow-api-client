@@ -11,13 +11,13 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: read
-      id-token: write
     env:
       GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -48,10 +48,10 @@ jobs:
           java-version: '21'
           cache: 'maven'
           server-id: central
-          server-username: OSSRH_USER
-          server-password: OSSRH_TOKEN
-          gpg-private-key: GPG_SECRET_KEY
-          gpg-passphrase: GPG_PASSPHRASE
+          server-username: "${{ secrets.OSSRH_USER }}"
+          server-password: "${{ secrets.OSSRH_TOKEN }}"
+          gpg-private-key: "${{ secrets.GPG_SECRET_KEY }}"
+          gpg-passphrase: "${{ secrets.GPG_PASSPHRASE }}"
 
       - name: Import public GPG key
         run: echo "${{ secrets.GPG_PUBLIC_KEY }}" | gpg --import --yes --always-trust
