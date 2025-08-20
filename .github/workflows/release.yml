@@ -54,7 +54,7 @@ jobs:
           gpg-passphrase: GPG_PASSPHRASE
 
       - name: Import public GPG key
-        run: echo "${{ secrets.GPG_PUBLIC_KEY }}" | gpg --import
+        run: echo "${{ secrets.GPG_PUBLIC_KEY }}" | gpg --import --yes --always-trust
 
       - name: Set release version in POM
         run: mvn --batch-mode versions:set -DnewVersion=$VERSION
