@@ -96,10 +96,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push tag (for manual workflow)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          git config user.name 'GitHub Actions'
-          git config user.email 'actions@github.com'
-          git tag -a v$VERSION -m "Release $VERSION"
-          git push origin v$VERSION
