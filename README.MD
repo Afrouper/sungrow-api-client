@@ -20,13 +20,12 @@ The Client is still in development and not finished.
 - [x] Add github actions for compile, dependabot and securiy issues
 - [x] Add sample client for basic usage
 - [x] Support encrypted API calls (open: Change password for each call)
-- [ ] Add OAuth2 Support
-- [ ] Add release action
+- [x] Add release action
 - [x] Mock JUnit Test
-- [ ] **More** JUnit Test
-- [ ] Deploy via Maven Central
+- [x] Deploy via Maven Central
 - [x] Complete API Calls for reading
 - [ ] Complete API Calls for writing
+- [ ] Add OAuth2 Support
 
 # Usage
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
