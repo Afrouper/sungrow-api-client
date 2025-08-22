@@ -27,6 +27,17 @@ The Client is still in development and not finished.
 - [ ] Complete API Calls for writing
 - [ ] Add OAuth2 Support
 
+## Dependency
+The JAR is available on [Maven Central](https://central.sonatype.com/artifact/io.github.afrouper/sungrow-api-client)
+with the coordinates `io.github.afrouper:sungrow-api-client`:
+```xml
+<dependency>
+    <groupId>io.github.afrouper</groupId>
+    <artifactId>sungrow-api-client</artifactId>
+    <version>[1.0.0,)</version>
+</dependency>
+```
+
 # Usage
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
 credentials (see [Sungrow Developer Portal](https://developer-api.isolarcloud.com))
