@@ -6,18 +6,14 @@ import de.afrouper.server.sungrow.api.dto.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.time.temporal.TemporalField;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SerializationTests {
 
-    private Gson gson;
+    private final Gson gson;
 
     SerializationTests(){
         gson = new GsonBuilder()
@@ -66,7 +62,7 @@ public class SerializationTests {
                 DeviceStatus.Deployed,
                 "Point Name",
                 "Point serial",
-                42l,
+                42L,
                 "uuid",
                 Map.of("p1", "v1")
         );

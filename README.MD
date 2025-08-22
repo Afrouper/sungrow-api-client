@@ -17,7 +17,7 @@ The Client is still in development and not finished.
 > I choose a very simple implementation to get this client used in different environments; without coming to "dependency hell".
 
 ## ToDos
-- [x] Add github actions for compile, dependabot and securiy issues
+- [x] Add gitHub actions for compile, dependabot and securiy issues
 - [x] Add sample client for basic usage
 - [x] Support encrypted API calls (open: Change password for each call)
 - [x] Add release action
@@ -29,7 +29,7 @@ The Client is still in development and not finished.
 
 # Usage
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
-credentials (see [Sungrow Developer Portal](#Sungrow Developer Portal))
+credentials (see [Sungrow Developer Portal](https://developer-api.isolarcloud.com))
 
 A sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java). If not provided the needed properties are read from
 a Java SystemProperty and (if not found) from an environment variable:
@@ -43,7 +43,7 @@ a Java SystemProperty and (if not found) from an environment variable:
 | RSA_PUBLIC_KEY                        | RSA Public key to call APIs E2E encrypted              |
 | API_CALL_PASSWORD                     | Password for payload encryption                        |
 
-The URL for accessing the correct cloud service is determined from the [Region](../src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
+The URL for accessing the correct cloud service is determined from the [Region](src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
 
 ## Java Sample
 
@@ -67,7 +67,7 @@ You need to create an application; go to you applications in the top menu:
 
 ![Applications](img/applicationMenu.png)
 
-Click 'Create Application'. After this fill out the needed informations and be sure that you
+Click 'Create Application'. After this fill out the needed information and be sure that you
 do **not** choose "OAuth2.0": 
 
 ![Authorization](img/authorization.png)
