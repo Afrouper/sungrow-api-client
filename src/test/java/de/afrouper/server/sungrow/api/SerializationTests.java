@@ -37,7 +37,6 @@ public class SerializationTests {
 
     @Test
     void deviceList(){
-        Map<String, String> ids = Map.of("k1", "v1");
         Map<String, DevicePointInfo> points = new HashMap<>();
         points.put("p1", new DevicePointInfo(
                 "p1",
