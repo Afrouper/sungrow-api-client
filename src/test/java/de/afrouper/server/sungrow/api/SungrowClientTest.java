@@ -24,7 +24,7 @@ class SungrowClientTest {
     @BeforeEach
     void createClient(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
         stub("/openapi/login", "loginRequest.json", "loginResponse.json");
-        sungrowClient = Constants.createTestClient(wireMockRuntimeInfo.getHttpPort());
+        sungrowClient = TestHelper.createTestClient(wireMockRuntimeInfo.getHttpPort());
     }
 
     @Test
@@ -37,7 +37,7 @@ class SungrowClientTest {
         stub("/openapi/login", "loginRequest_Fail.json", "loginResponse_Fail.json");
         SungrowApiException ex = assertThrows(
                 SungrowApiException.class,
-                () -> Constants.createFailTestClient(wireMockRuntimeInfo.getHttpPort())
+                () -> TestHelper.createFailTestClient(wireMockRuntimeInfo.getHttpPort())
         );
         assertTrue(ex.getMessage().contains("error"));
         assertEquals("42", ex.getResultCode());
@@ -142,7 +142,7 @@ class SungrowClientTest {
     private void stub(String path, String requestFile, String responseFile) {
         stubFor(post(urlPathMatching(path))
                 .withRequestBody(equalToJson(readResource("/" + requestFile), true, true))
-                .withHeader("x-access-key", equalTo(Constants.SECRET_KEY))
+                .withHeader("x-access-key", equalTo(TestHelper.SECRET_KEY))
                 .withHeader("sys_code", equalTo("901"))
                 .willReturn(aResponse()
                         .withStatus(200)

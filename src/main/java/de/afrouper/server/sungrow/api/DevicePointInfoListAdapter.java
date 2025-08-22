@@ -32,6 +32,8 @@ public class DevicePointInfoListAdapter implements JsonSerializer<DevicePointInf
 
     @Override
     public JsonElement serialize(DevicePointInfoList src, Type typeOfSrc, JsonSerializationContext context) {
-        return null;
+        JsonObject obj = new JsonObject();
+        obj.add("pageList", context.serialize(src.devicePointInfoList()));
+        return obj;
     }
 }
