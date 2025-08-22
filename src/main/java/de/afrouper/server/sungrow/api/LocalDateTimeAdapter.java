@@ -10,7 +10,8 @@ final class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonD
 
     @Override
     public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
-        return new JsonPrimitive(src.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        ZonedDateTime zonedDateTime = src.atZone(ZoneId.systemDefault());
+        return new JsonPrimitive(zonedDateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
     }
 
     @Override

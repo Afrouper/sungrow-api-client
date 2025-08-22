@@ -14,18 +14,25 @@ public class DevicePointAdapter implements JsonDeserializer<DevicePoint>, JsonSe
     @Override
     public DevicePoint deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
-        JsonObject obj = json.getAsJsonObject().getAsJsonObject("device_point");
+        JsonObject jso = json.getAsJsonObject();
+        if(jso.has("device_point")) {
+            jso = jso.getAsJsonObject("device_point");
+        }
+
+        if(jso == null) {
+            return null;
+        }
 
         // bekannte Felder
-        DeviceFaultStatus faultStatus = context.deserialize(obj.get("dev_fault_status"), DeviceFaultStatus.class);
-        DeviceStatus deviceStatus     = context.deserialize(obj.get("dev_status"), DeviceStatus.class);
-        String name                   = context.deserialize(obj.get("device_name"), String.class);
-        String serial                 = context.deserialize(obj.get("device_sn"), String.class);
-        String uuid                   = context.deserialize(obj.get("uuid"), String.class);
-        Long deviceUpdateTime         = context.deserialize(obj.get("uuid"), Long.class);
+        DeviceFaultStatus faultStatus = context.deserialize(jso.get("dev_fault_status"), DeviceFaultStatus.class);
+        DeviceStatus deviceStatus     = context.deserialize(jso.get("dev_status"), DeviceStatus.class);
+        String name                   = context.deserialize(jso.get("device_name"), String.class);
+        String serial                 = context.deserialize(jso.get("device_sn"), String.class);
+        String uuid                   = context.deserialize(jso.get("uuid"), String.class);
+        Long deviceUpdateTime         = context.deserialize(jso.get("device_time"), Long.class);
 
         Map<String, String> pointIds = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : jso.entrySet()) {
             String key = entry.getKey();
             JsonElement value = entry.getValue();
             if (key.matches("p\\d+") && value != null && value.isJsonPrimitive()) {

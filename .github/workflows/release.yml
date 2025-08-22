@@ -70,6 +70,10 @@ jobs:
           fi
 
           cat <<EOF > RELEASE_NOTES.md
+
+          ## Changes
+          $CHANGELOG
+
           ## Maven Central
           \`\`\`xml
           <dependency>
@@ -79,8 +83,6 @@ jobs:
           </dependency>
           \`\`\`
 
-          ## Changes
-          $CHANGELOG
           EOF
 
       - name: Create release (and upload JARs)
