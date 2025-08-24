@@ -73,7 +73,7 @@ public class Client {
     private void handlePoints(Map<String, String> dataPoints, DevicePointInfoList openPointInfo) {
         dataPoints.forEach((key, value) -> {
             DevicePointInfo pointInfo = openPointInfo.getDevicePointInfo(key.substring(1));
-            System.out.println(pointInfo.pointName() + ": " + value + " " + pointInfo.showUnit());
+            System.out.println(pointInfo.pointName() + ": " + value + " " + pointInfo.storageUnit());
         });
     }
 }
