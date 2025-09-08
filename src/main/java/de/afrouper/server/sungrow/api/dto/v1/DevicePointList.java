@@ -1,6 +1,7 @@
-package de.afrouper.server.sungrow.api.dto;
+package de.afrouper.server.sungrow.api.dto.v1;
 
 import com.google.gson.annotations.SerializedName;
+import de.afrouper.server.sungrow.api.dto.DevicePoint;
 
 import java.util.List;
 

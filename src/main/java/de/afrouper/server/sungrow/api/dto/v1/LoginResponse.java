@@ -1,4 +1,6 @@
-package de.afrouper.server.sungrow.api.dto;
+package de.afrouper.server.sungrow.api.dto.v1;
+
+import de.afrouper.server.sungrow.api.dto.LoginState;
 
 public record LoginResponse(
     String email,

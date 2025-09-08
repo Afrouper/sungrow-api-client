@@ -4,6 +4,7 @@ package de.afrouper.server.sungrow.api;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import de.afrouper.server.sungrow.api.dto.*;
+import de.afrouper.server.sungrow.api.dto.v1.DevicePointList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
