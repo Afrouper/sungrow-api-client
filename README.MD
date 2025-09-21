@@ -11,12 +11,14 @@ API Client which uses the official API from the [sungrow developer portal](https
 The Client is still in development and not finished.
 
 > [!NOTE]
-> Pull requests to complete APIs are welcome 
+> Pull requests to complete APIs are welcome
 
 > [!IMPORTANT]
-> I choose a very simple implementation to get this client used in different environments; without coming to "dependency hell".
+> I choose a very simple implementation to get this client used in different environments; without coming to "dependency
+> hell".
 
 ## ToDos
+
 - [x] Add gitHub actions for compile, dependabot and securiy issues
 - [x] Add sample client for basic usage
 - [x] Support encrypted API calls (open: Change password for each call)
@@ -24,26 +26,31 @@ The Client is still in development and not finished.
 - [x] Mock JUnit Test
 - [x] Deploy via Maven Central
 - [x] Complete API Calls for reading
+- [x] Add OAuth2 Support
 - [ ] Complete API Calls for writing
-- [ ] Add OAuth2 Support
 
 ## Dependency
+
 The JAR is available on [Maven Central](https://central.sonatype.com/artifact/io.github.afrouper/sungrow-api-client)
 with the coordinates `io.github.afrouper:sungrow-api-client`:
+
 ```xml
+
 <dependency>
     <groupId>io.github.afrouper</groupId>
     <artifactId>sungrow-api-client</artifactId>
-    <version>[1.0.0,)</version>
+    <version>[1.1.0,)</version>
 </dependency>
 ```
 
 # Usage
+
 You have to create an account at Sungrows iSolarCloud and on their developer portal and get the needed
 credentials (see [Sungrow Developer Portal](https://developer-api.isolarcloud.com))
+To access the iSolarCloud API you can either use a variant with an "API key" or via OAuth2.
 
-A sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java). If not provided the needed properties are read from
-a Java SystemProperty and (if not found) from an environment variable:
+For a simple configuration approach the needed values can be read via class
+[EnvironmentConfiguration](src/main/java/de/afrouper/server/sungrow/api/EnvironmentConfiguration.java).
 
 | SystemProperty / Environment variable | meaning                                                |
 |---------------------------------------|--------------------------------------------------------|
@@ -53,38 +60,62 @@ a Java SystemProperty and (if not found) from an environment variable:
 | ACCOUNT_PASSWORD                      | Password used for login to Sungrow Developer Portal    |
 | RSA_PUBLIC_KEY                        | RSA Public key to call APIs E2E encrypted              |
 | API_CALL_PASSWORD                     | Password for payload encryption                        |
+| AUTHORIZE_URL                         | OAuth2 Authorization URL                               |
+| REDIRECT_URL                          | OAuth2 Redirect URL                                    |
 
-The URL for accessing the correct cloud service is determined from the [Region](src/main/java/de/afrouper/server/sungrow/api/SungrowClientFactory.java) Enum. 
+The URL for accessing the correct cloud service is determined from
+the [Region](src/main/java/de/afrouper/server/sungrow/api/SungrowClientBuilder.java) Enum.
 
-## Java Sample
+## API Key variant
 
-A simple sample can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java).
+A simple example can be found at [Client.java](src/test/java/de/afrouper/server/sungrow/Client.java).
 Its Output (with a german installation) can be seen [here](docs/Output.MD)
 
-Or a very simple step:
 ```java
-sungrowClient = SungrowClientFactory.createSungrowClientWithEncryption(SungrowClientFactory.Region.EUROPE);
-sungrowClient.login();
+sungrowClient = new SungrowClientBuilder()
+    .builder(SungrowClientBuilder.Region.EUROPE)
+    .withCredentials(EnvironmentConfiguration.getAppKey(), EnvironmentConfiguration.getSecretKey())
+        .withLogin(EnvironmentConfiguration.getAccountEmail(), EnvironmentConfiguration.getAccountPassword());
 
 PlantList plants = sungrowClient.getPlants();
 // Handle Plants and devices - see de.afrouper.server.sungrow.Client
 ```
 
+## OAuth2 variant
+
+The OAuth2 auth code flow requires a server to handle the redirect send after login; the server must be implemented or
+provided by you 😇
+A sample can be found at [OAuth2Client](src/test/java/de/afrouper/server/sungrow/OAuth2Client.java)
+
+```java
+sungrowClient = new SungrowClientBuilder()
+    .builder(SungrowClientBuilder.Region.EUROPE)
+    .withCredentials(EnvironmentConfiguration.getAppKey(), EnvironmentConfiguration.getSecretKey())
+    .withOAuth2(EnvironmentConfiguration.getAuthorizeUrl(), EnvironmentConfiguration.getRedirectUrl())
+    .build();
+
+String authCode = "xxxxx"; //TODO: Replace with correct auth code
+sungrowClient.authCodeFlow(authCode);
+
+PlantList plants = sungrowClient.getPlants();
+// Handle Plants and devices...
+
+sungrowClient.close(); // Stop thread for refreshing the access token
+```
+
 # Sungrow Developer Portal
 
-Currently only the access for private customers can be used.
 Use your sungrow credentials to login at "https://developer-api.isolarcloud.com".
 You need to create an application; go to you applications in the top menu:
 
 ![Applications](img/applicationMenu.png)
 
-Click 'Create Application'. After this fill out the needed information and be sure that you
-do **not** choose "OAuth2.0": 
+Click 'Create Application'. This is the sample for a "normal" application - used via "API key" variant.
 
 ![Authorization](img/authorization.png)
 
-# Develop new APIs
-Please read the docs at the [Developer Portal](https://developer-api.isolarcloud.com/#/document/md?id=10942&project_id=2&version=V1).
+# API Usage
 
-To create a new API refer the existing one such as `de.afrouper.server.sungrow.api.operations.DeviceList_D`.
-You have to create a class per API and the corresponding request and response objects.
+Please read the docs at
+the [Developer Portal](https://developer-api.isolarcloud.com/#/document/md?id=10942&project_id=2&version=V1). THe are
+some hints and documentation of the measurement points, etc.

@@ -4,7 +4,6 @@ import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
 import java.util.Base64;
 
 public class TestHelper {
@@ -22,15 +21,18 @@ public class TestHelper {
 
     static SungrowClient createTestClient(int port) throws Exception {
         URI uri = new URI("http://localhost:" + port);
-        SungrowClient sungrowClient = SungrowClientFactory.createSungrowClient(uri, APP_KEY, SECRET_KEY, Duration.ofSeconds(10), Duration.ofSeconds(30));
-        sungrowClient.login(EMAIL, PASSWORD);
-        return sungrowClient;
+        return new SungrowClientBuilder()
+                .builder(uri)
+                .withCredentials(APP_KEY, SECRET_KEY)
+                .withLogin(EMAIL, PASSWORD);
     }
 
     static void createFailTestClient(int port) throws Exception {
         URI uri = new URI("http://localhost:" + port);
-        SungrowClient sungrowClient = SungrowClientFactory.createSungrowClient(uri, APP_KEY, SECRET_KEY, Duration.ofSeconds(10), Duration.ofSeconds(30));
-        sungrowClient.login(EMAIL_FAIL, PASSWORD);
+        new SungrowClientBuilder()
+                .builder(uri)
+                .withCredentials(APP_KEY, SECRET_KEY)
+                .withLogin(EMAIL_FAIL, PASSWORD);
     }
 
     static void initSystemProperties() {

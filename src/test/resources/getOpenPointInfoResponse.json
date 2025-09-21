@@ -1,41 +1,41 @@
 {
-  "req_serial_num":"2024112717964c0f8986057ee771ddb6",
-  "result_code":"1",
-  "result_msg":"success",
-  "result_data":{
-    "rowCount":540,
-    "pageList":[
+  "req_serial_num": "2024112717964c0f8986057ee771ddb6",
+  "result_code": "1",
+  "result_msg": "success",
+  "result_data": {
+    "rowCount": 540,
+    "pageList": [
       {
-        "point_id":1,
-        "open_point_remark":null,
-        "storage_unit":"Wh",
-        "show_unit":"kWh",
-        "device_type":1,
-        "point_name":"当日发电"
+        "point_id": 1,
+        "open_point_remark": null,
+        "storage_unit": "Wh",
+        "show_unit": "kWh",
+        "device_type": 1,
+        "point_name": "当日发电"
       },
       {
-        "point_id":2,
-        "open_point_remark":null,
-        "storage_unit":"Wh",
-        "show_unit":"kWh",
-        "device_type":1,
-        "point_name":"总发电量"
+        "point_id": 2,
+        "open_point_remark": null,
+        "storage_unit": "Wh",
+        "show_unit": "kWh",
+        "device_type": 1,
+        "point_name": "总发电量"
       },
       {
-        "point_id":3,
-        "open_point_remark":null,
-        "storage_unit":"h",
-        "show_unit":"h",
-        "device_type":1,
-        "point_name":"总并网运行时间"
+        "point_id": 3,
+        "open_point_remark": null,
+        "storage_unit": "h",
+        "show_unit": "h",
+        "device_type": 1,
+        "point_name": "总并网运行时间"
       },
       {
-        "point_id":1601548,
-        "open_point_remark":null,
-        "storage_unit":null,
-        "show_unit":null,
-        "device_type":1,
-        "point_name":"子故障码10"
+        "point_id": 1601548,
+        "open_point_remark": null,
+        "storage_unit": null,
+        "show_unit": null,
+        "device_type": 1,
+        "point_name": "子故障码10"
       }
     ]
   }

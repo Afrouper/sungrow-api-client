@@ -1,13 +1,13 @@
 {
-  "appkey" : "JUnit App Key",
-  "token" : "999125867_91bbb35be9f74ccebb0406307ca80874",
-  "lang" : "_en_US",
-  "device_type":"11",
-  "point_id_list":[
+  "appkey": "JUnit App Key",
+  "token": "999125867_91bbb35be9f74ccebb0406307ca80874",
+  "lang": "_en_US",
+  "device_type": "11",
+  "point_id_list": [
     "83022",
     "83033"
   ],
-  "ps_key_list":[
+  "ps_key_list": [
     "972018_11_0_0",
     "971822_11_0_0",
     "972131_11_0_0",

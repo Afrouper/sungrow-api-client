@@ -1,88 +1,33 @@
 package de.afrouper.server.sungrow.api;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
 import de.afrouper.server.sungrow.api.dto.*;
+import de.afrouper.server.sungrow.api.dto.v1.DevicePointList;
+import de.afrouper.server.sungrow.api.dto.v1.LoginResponse;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class SungrowClient {
+public class SungrowClient extends BaseSungrowClient {
 
-    private final HttpClient httpClient;
-    private final String appKey;
-    private final String secretKey;
-    private final Duration requestTimeout;
-    private final URI uri;
-    private final Gson gson;
     private LoginResponse loginResponse;
-    private EncryptionUtility encryptionUtility;
 
-    SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
-        Objects.requireNonNull(uri, "URI cannot be null");
-        Objects.requireNonNull(appKey, "App key cannot be null");
-        Objects.requireNonNull(secretKey, "Secret key cannot be null");
-        Objects.requireNonNull(connectTimeout, "Connect timeout cannot be null");
-        Objects.requireNonNull(requestTimeout, "Request timeout cannot be null");
-        this.uri = uri;
-        this.appKey = appKey;
-        this.secretKey = secretKey;
-        this.requestTimeout = requestTimeout;
-        this.httpClient = HttpClient
-                .newBuilder()
-                .connectTimeout(connectTimeout)
-                .build();
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(DevicePoint.class, new DevicePointAdapter())
-                .registerTypeAdapter(DevicePointInfoList.class, new DevicePointInfoListAdapter())
-                .create();
-
+    SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout, Language language) {
+        super(uri, appKey, secretKey, connectTimeout, requestTimeout, language);
     }
 
-    void activateEncryption(String rsaPublicKey, String password) {
-        encryptionUtility = new EncryptionUtility(rsaPublicKey, password);
-    }
-
-    public void login() {
-        login(EnvironmentConfiguration.getAccountEmail(), EnvironmentConfiguration.getAccountPassword());
-    }
-
-    public void login(String username, String password) {
+    void login(String username, String password) {
         JsonObject loginRequest = new JsonObject();
         loginRequest.addProperty("user_account", username);
         loginRequest.addProperty("user_password", password);
 
         LoginResponse loginResponse = executeRequest("/openapi/login", loginRequest, LoginResponse.class);
-        if(LoginState.SUCCESS.equals(loginResponse.login_state())) {
+        if (LoginState.SUCCESS.equals(loginResponse.login_state())) {
             this.loginResponse = loginResponse;
-        }
-        else {
+        } else {
             throw new SungrowApiException("Login error. State: " + loginResponse.login_state());
         }
-    }
-
-    private String[] getDefaultHeaders() {
-        List<String> headers = new ArrayList<>();
-        headers.add("Content-Type");
-        headers.add("application/json");
-        headers.add("x-access-key");
-        headers.add(secretKey);
-        headers.add("sys_code");
-        headers.add("901");
-        if(encryptionUtility != null) {
-            headers.add("x-random-secret-key");
-            headers.add(encryptionUtility.createRandomPublicKey());
-        }
-        return headers.toArray(new String[0]);
     }
 
     public PlantList getPlants() {
@@ -111,7 +56,7 @@ public class SungrowClient {
         request.add("point_id_list", gson.toJsonTree(measuringPoints));
         request.add("ps_key_list", gson.toJsonTree(plantPsKeys));
 
-        return  executeRequest("/openapi/getDeviceRealTimeData", request, DevicePointList.class);
+        return executeRequest("/openapi/getDeviceRealTimeData", request, DevicePointList.class);
     }
 
     public DevicePointInfoList getOpenPointInfo(DeviceType deviceType, String deviceModelId) {
@@ -123,7 +68,7 @@ public class SungrowClient {
         request.addProperty("curPage", 1);
         request.addProperty("size", 999);
 
-        return  executeRequest("/openapi/getOpenPointInfo", request, DevicePointInfoList.class);
+        return executeRequest("/openapi/getOpenPointInfo", request, DevicePointInfoList.class);
     }
 
     public BasicPlantInfo getBasicPlantInfo(String serial) {
@@ -134,82 +79,10 @@ public class SungrowClient {
         return executeRequest("/openapi/getPowerStationDetail", request, BasicPlantInfo.class);
     }
 
-    private <T> T executeRequest(String subPath, JsonObject request, Class<T> responseType) {
-        request.add("lang", gson.toJsonTree(Language.ENGLISH));
-        request.addProperty("appkey", appKey);
-        if(loginResponse != null) {
-            request.addProperty("token", (loginResponse.token()));
-        }
-
-        String jsonRequest;
-        if(encryptionUtility != null) {
-            JsonElement apiKeyParameter = gson.toJsonTree(encryptionUtility.createApiKeyParameter());
-            request.add("api_key_param", apiKeyParameter);
-            jsonRequest = gson.toJson(request);
-            jsonRequest = encryptionUtility.encrypt(jsonRequest);
-        }
-        else {
-            jsonRequest = gson.toJson(request);
-        }
-
-        HttpRequest httpRequest = HttpRequest.newBuilder(uri.resolve(subPath))
-                .POST(HttpRequest.BodyPublishers.ofString(jsonRequest))
-                .timeout(requestTimeout)
-                .headers(getDefaultHeaders())
-                .build();
-
-        String jsonResponse = null;
-        try {
-            HttpResponse<String> send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            jsonResponse = send.body();
-            if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
-                jsonResponse = encryptionUtility.decrypt(jsonResponse);
-            }
-
-            if(send.statusCode() == 200) {
-                JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
-
-                String requestSerial = getAsString(jsonObject, "req_serial_num");
-                String resultCode = getAsString(jsonObject, "result_code");
-                String resultMsg = getAsString(jsonObject, "result_msg");
-
-                if("1".equals(resultCode)) {
-                    return gson.fromJson(jsonObject.getAsJsonObject("result_data"), responseType);
-                }
-                else {
-                    throw new SungrowApiException(resultMsg, resultCode, requestSerial);
-                }
-            }
-            else {
-                //Try to parse - perhaps the answer is json...
-                try {
-                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
-                    String requestSerial = jsonObject.getAsJsonPrimitive("req_serial_num").getAsString();
-                    String resultCode = jsonObject.getAsJsonPrimitive("result_code").getAsString();
-                    String resultMsg = jsonObject.getAsJsonPrimitive("result_msg").getAsString();
-                    throw new SungrowApiException("HTTP Status " + send.statusCode() + ", Message: " + resultMsg, resultCode, requestSerial);
-                }
-                catch (Throwable t) {
-                    // NOP - no Json from server...
-                    throw new SungrowApiException("HTTP Status " + send.statusCode() + ", Body: " + jsonResponse);
-                }
-            }
-        } catch (InterruptedException | NumberFormatException | IOException e) {
-            throw new RuntimeException("Unable to execute Operation. Json from server: '" + jsonResponse + "'.", e);
-        }
-    }
-
-    private String getAsString(JsonObject jsonObject, String memberName) {
-        JsonPrimitive jsonPrimitive = jsonObject.getAsJsonPrimitive(memberName);
-        if(jsonPrimitive != null) {
-            if (jsonPrimitive.isString()) {
-                return jsonPrimitive.getAsString();
-            } else {
-                return jsonPrimitive.toString();
-            }
-        }
-        else {
-            return null;
+    @Override
+    protected void addAuthorizationData(JsonObject request) {
+        if (loginResponse != null) {
+            request.addProperty("token", loginResponse.token());
         }
     }
 }

@@ -2,52 +2,59 @@ package de.afrouper.server.sungrow.api;
 
 import java.time.Duration;
 
-class EnvironmentConfiguration {
+public class EnvironmentConfiguration {
 
-    static String getAppKey() {
+    public static String getAppKey() {
         return get("APP_KEY", null);
     }
 
-    static String getSecretKey() {
+    public static String getSecretKey() {
         return get("SECRET_KEY", null);
     }
 
-    static String getAccountEmail() {
+    public static String getAccountEmail() {
         return get("ACCOUNT_EMAIL", null);
     }
 
-    static String getAccountPassword() {
+    public static String getAccountPassword() {
         return get("ACCOUNT_PASSWORD", null);
     }
 
-    static String getRSAPublicKey() {
+    public static String getRSAPublicKey() {
         return get("RSA_PUBLIC_KEY", null);
     }
 
-    static String getApiCallPassword() {
+    public static String getApiCallPassword() {
         return get("API_CALL_PASSWORD", null);
     }
 
-    static Duration getConnectionTimeout() {
+    public static String getAuthorizeUrl() {
+        return get("AUTHORIZE_URL", null);
+    }
+
+    public static String getRedirectUrl() {
+        return get("REDIRECT_URL", null);
+    }
+
+    public static Duration getConnectionTimeout() {
         String connectionTimeout = get("CONNECTION_TIMEOUT", "10");
         return Duration.ofSeconds(Integer.parseInt(connectionTimeout));
     }
 
-    static Duration getRequestTimeout() {
+    public static Duration getRequestTimeout() {
         String requestTimeout = get("REQUEST_TIMEOUT", "30");
         return Duration.ofSeconds(Integer.parseInt(requestTimeout));
     }
 
     private static String get(String key, String defaultValue) {
         String property = System.getProperty(key);
-        if(property != null) {
+        if (property != null) {
             return property;
         }
         property = System.getenv(key);
-        if(property != null) {
+        if (property != null) {
             return property;
-        }
-        else {
+        } else {
             return defaultValue;
         }
     }

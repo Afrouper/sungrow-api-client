@@ -4,6 +4,7 @@ package de.afrouper.server.sungrow.api;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import de.afrouper.server.sungrow.api.dto.*;
+import de.afrouper.server.sungrow.api.dto.v1.DevicePointList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -154,7 +155,7 @@ class SungrowClientTest {
 
     private String readResource(String name) {
         InputStream inputStream = getClass().getResourceAsStream(name);
-        if(inputStream == null) {
+        if (inputStream == null) {
             throw new IllegalStateException("Resource not found: " + name);
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {

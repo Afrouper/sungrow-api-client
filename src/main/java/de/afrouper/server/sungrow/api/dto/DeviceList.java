@@ -9,4 +9,5 @@ public record DeviceList(
 
         @SerializedName("pageList")
         List<Device> devices
-) {}
+) {
+}

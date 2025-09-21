@@ -1,8 +1,10 @@
 package de.afrouper.server.sungrow;
 
+import de.afrouper.server.sungrow.api.EnvironmentConfiguration;
 import de.afrouper.server.sungrow.api.SungrowClient;
-import de.afrouper.server.sungrow.api.SungrowClientFactory;
+import de.afrouper.server.sungrow.api.SungrowClientBuilder;
 import de.afrouper.server.sungrow.api.dto.*;
+import de.afrouper.server.sungrow.api.dto.v1.DevicePointList;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +26,10 @@ public class Client {
     }
 
     private void executeSample() {
-        sungrowClient = SungrowClientFactory.createSungrowClientWithEncryption(SungrowClientFactory.Region.EUROPE);
-        sungrowClient.login();
+        sungrowClient = new SungrowClientBuilder()
+                .builder(SungrowClientBuilder.Region.EUROPE)
+                .withCredentials(EnvironmentConfiguration.getAppKey(), EnvironmentConfiguration.getSecretKey())
+                .withLogin(EnvironmentConfiguration.getAccountEmail(), EnvironmentConfiguration.getAccountPassword());
 
         PlantList plants = sungrowClient.getPlants();
         System.out.println(plants);
@@ -44,7 +48,7 @@ public class Client {
     private void handleDevice(Device device) {
         readRealTimeData(device);
 
-        if(device.serial() != null) {
+        if (device.serial() != null) {
             BasicPlantInfo basicPlantInfo = sungrowClient.getBasicPlantInfo(device.serial());
             System.out.println(basicPlantInfo);
         }
