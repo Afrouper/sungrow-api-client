@@ -155,7 +155,7 @@ class SungrowClientTest {
 
     private String readResource(String name) {
         InputStream inputStream = getClass().getResourceAsStream(name);
-        if(inputStream == null) {
+        if (inputStream == null) {
             throw new IllegalStateException("Resource not found: " + name);
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {

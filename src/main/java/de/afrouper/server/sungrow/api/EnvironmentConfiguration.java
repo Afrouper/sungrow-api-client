@@ -48,14 +48,13 @@ public class EnvironmentConfiguration {
 
     private static String get(String key, String defaultValue) {
         String property = System.getProperty(key);
-        if(property != null) {
+        if (property != null) {
             return property;
         }
         property = System.getenv(key);
-        if(property != null) {
+        if (property != null) {
             return property;
-        }
-        else {
+        } else {
             return defaultValue;
         }
     }

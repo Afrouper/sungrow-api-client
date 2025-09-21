@@ -48,7 +48,7 @@ public class Client {
     private void handleDevice(Device device) {
         readRealTimeData(device);
 
-        if(device.serial() != null) {
+        if (device.serial() != null) {
             BasicPlantInfo basicPlantInfo = sungrowClient.getBasicPlantInfo(device.serial());
             System.out.println(basicPlantInfo);
         }

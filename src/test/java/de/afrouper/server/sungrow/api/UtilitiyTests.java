@@ -9,7 +9,7 @@ import java.util.Locale;
 public class UtilitiyTests {
 
     @Test
-    void createLocale(){
+    void createLocale() {
         Language language = Language.fromString(Locale.GERMANY);
         Assertions.assertEquals(Language.GERMAN, language);
         language = Language.fromString(Locale.GERMAN);
@@ -17,7 +17,7 @@ public class UtilitiyTests {
         language = Language.fromString(Locale.of("de", "AT"));
         Assertions.assertEquals(Language.GERMAN, language);
 
-        language  = Language.fromString(Locale.ENGLISH);
+        language = Language.fromString(Locale.ENGLISH);
         Assertions.assertEquals(Language.ENGLISH, language);
 
         language = Language.fromString(Locale.FRENCH);

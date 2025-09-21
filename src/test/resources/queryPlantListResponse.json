@@ -9,10 +9,10 @@
         "online_status": 0,
         "latitude": 0,
         "description": null,
-        "curr_power_update_time":"2025-08-17T22:31:36+08:00",
-        "curr_power":{
-          "unit":"W",
-          "value":"585"
+        "curr_power_update_time": "2025-08-17T22:31:36+08:00",
+        "curr_power": {
+          "unit": "W",
+          "value": "585"
         },
         "valid_flag": 1,
         "grid_connection_status": 0,

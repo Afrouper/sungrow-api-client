@@ -25,7 +25,7 @@ public class DevicePointInfoListAdapter implements JsonSerializer<DevicePointInf
         Map<String, DevicePointInfo> devicePointInfoMap = new HashMap<>(arr.size());
         for (JsonElement el : arr) {
             DevicePointInfo info = context.deserialize(el, DevicePointInfo.class);
-            devicePointInfoMap.put(info.pointId(),  info);
+            devicePointInfoMap.put(info.pointId(), info);
         }
         return new DevicePointInfoList(devicePointInfoMap);
     }

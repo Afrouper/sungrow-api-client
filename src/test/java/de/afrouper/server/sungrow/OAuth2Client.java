@@ -6,7 +6,10 @@ import de.afrouper.server.sungrow.api.SungrowClientOAuth;
 import de.afrouper.server.sungrow.api.dto.*;
 import de.afrouper.server.sungrow.api.dto.v2.DevicePointList;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class OAuth2Client {
 
@@ -28,7 +31,7 @@ public class OAuth2Client {
                 .withOAuth2(EnvironmentConfiguration.getAuthorizeUrl(), EnvironmentConfiguration.getRedirectUrl())
                 .build();
 
-        try{
+        try {
             String authCode = "xxxxx";
             //For Test - set breakpoint and change value with authcode
             System.out.println(authCode);
@@ -41,10 +44,9 @@ public class OAuth2Client {
             System.out.println(basicPlantInfo);
 
             plants.plants().forEach(this::handlePlant);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
-            if(sungrowClient != null) {
+            if (sungrowClient != null) {
                 sungrowClient.close();
             }
         }

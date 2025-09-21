@@ -15,21 +15,21 @@ public class DevicePointAdapter implements JsonDeserializer<DevicePoint>, JsonSe
     public DevicePoint deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
         JsonObject jso = json.getAsJsonObject();
-        if(jso.has("device_point")) {
+        if (jso.has("device_point")) {
             jso = jso.getAsJsonObject("device_point");
         }
 
-        if(jso == null) {
+        if (jso == null) {
             return null;
         }
 
         // bekannte Felder
         DeviceFaultStatus faultStatus = context.deserialize(jso.get("dev_fault_status"), DeviceFaultStatus.class);
-        DeviceStatus deviceStatus     = context.deserialize(jso.get("dev_status"), DeviceStatus.class);
-        String name                   = context.deserialize(jso.get("device_name"), String.class);
-        String serial                 = context.deserialize(jso.get("device_sn"), String.class);
-        String uuid                   = context.deserialize(jso.get("uuid"), String.class);
-        Long deviceUpdateTime         = context.deserialize(jso.get("device_time"), Long.class);
+        DeviceStatus deviceStatus = context.deserialize(jso.get("dev_status"), DeviceStatus.class);
+        String name = context.deserialize(jso.get("device_name"), String.class);
+        String serial = context.deserialize(jso.get("device_sn"), String.class);
+        String uuid = context.deserialize(jso.get("uuid"), String.class);
+        Long deviceUpdateTime = context.deserialize(jso.get("device_time"), Long.class);
 
         Map<String, String> pointIds = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : jso.entrySet()) {

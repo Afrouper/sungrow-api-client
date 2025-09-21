@@ -23,10 +23,9 @@ public class SungrowClient extends BaseSungrowClient {
         loginRequest.addProperty("user_password", password);
 
         LoginResponse loginResponse = executeRequest("/openapi/login", loginRequest, LoginResponse.class);
-        if(LoginState.SUCCESS.equals(loginResponse.login_state())) {
+        if (LoginState.SUCCESS.equals(loginResponse.login_state())) {
             this.loginResponse = loginResponse;
-        }
-        else {
+        } else {
             throw new SungrowApiException("Login error. State: " + loginResponse.login_state());
         }
     }
@@ -57,7 +56,7 @@ public class SungrowClient extends BaseSungrowClient {
         request.add("point_id_list", gson.toJsonTree(measuringPoints));
         request.add("ps_key_list", gson.toJsonTree(plantPsKeys));
 
-        return  executeRequest("/openapi/getDeviceRealTimeData", request, DevicePointList.class);
+        return executeRequest("/openapi/getDeviceRealTimeData", request, DevicePointList.class);
     }
 
     public DevicePointInfoList getOpenPointInfo(DeviceType deviceType, String deviceModelId) {
@@ -69,7 +68,7 @@ public class SungrowClient extends BaseSungrowClient {
         request.addProperty("curPage", 1);
         request.addProperty("size", 999);
 
-        return  executeRequest("/openapi/getOpenPointInfo", request, DevicePointInfoList.class);
+        return executeRequest("/openapi/getOpenPointInfo", request, DevicePointInfoList.class);
     }
 
     public BasicPlantInfo getBasicPlantInfo(String serial) {
@@ -82,7 +81,7 @@ public class SungrowClient extends BaseSungrowClient {
 
     @Override
     protected void addAuthorizationData(JsonObject request) {
-        if(loginResponse != null) {
+        if (loginResponse != null) {
             request.addProperty("token", loginResponse.token());
         }
     }

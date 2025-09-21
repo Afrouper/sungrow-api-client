@@ -55,7 +55,7 @@ public final class SungrowClientBuilder {
             this.baseUri = baseUri;
         }
 
-        public Builder withCredentials(String appKey,  String secretKey) {
+        public Builder withCredentials(String appKey, String secretKey) {
             this.appKey = appKey;
             this.secretKey = secretKey;
             return this;
@@ -111,7 +111,7 @@ public final class SungrowClientBuilder {
         }
 
         private void activateEncryption(BaseSungrowClient baseSungrowClient) {
-            if(rsaPublicKey != null && apiCallPassword != null) {
+            if (rsaPublicKey != null && apiCallPassword != null) {
                 baseSungrowClient.activateEncryption(rsaPublicKey, apiCallPassword);
             }
         }

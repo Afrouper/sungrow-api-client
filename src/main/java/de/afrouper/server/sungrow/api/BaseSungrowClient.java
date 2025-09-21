@@ -41,8 +41,7 @@ abstract class BaseSungrowClient {
         this.requestTimeout = requestTimeout;
         if (language == null) {
             this.language = Language.ENGLISH;
-        }
-        else {
+        } else {
             this.language = language;
         }
         this.httpClient = HttpClient
@@ -73,13 +72,12 @@ abstract class BaseSungrowClient {
         addAuthorizationData(request);
 
         String jsonRequest;
-        if(encryptionUtility != null) {
+        if (encryptionUtility != null) {
             JsonElement apiKeyParameter = gson.toJsonTree(encryptionUtility.createApiKeyParameter());
             request.add("api_key_param", apiKeyParameter);
             jsonRequest = gson.toJson(request);
             jsonRequest = encryptionUtility.encrypt(jsonRequest);
-        }
-        else {
+        } else {
             jsonRequest = gson.toJson(request);
         }
 
@@ -93,25 +91,23 @@ abstract class BaseSungrowClient {
         try {
             HttpResponse<String> send = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             jsonResponse = send.body();
-            if(send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
+            if (send.statusCode() >= 200 && send.statusCode() < 500 && encryptionUtility != null) {
                 jsonResponse = encryptionUtility.decrypt(jsonResponse);
             }
 
-            if(send.statusCode() == 200) {
+            if (send.statusCode() == 200) {
                 JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
 
                 String requestSerial = getAsString(jsonObject, "req_serial_num");
                 String resultCode = getAsString(jsonObject, "result_code");
                 String resultMsg = getAsString(jsonObject, "result_msg");
 
-                if("1".equals(resultCode)) {
+                if ("1".equals(resultCode)) {
                     return gson.fromJson(jsonObject.getAsJsonObject("result_data"), responseType);
-                }
-                else {
+                } else {
                     throw new SungrowApiException(resultMsg, resultCode, requestSerial);
                 }
-            }
-            else {
+            } else {
                 //Try to parse - perhaps the answer is json...
                 try {
                     JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
@@ -119,8 +115,7 @@ abstract class BaseSungrowClient {
                     String resultCode = getAsString(jsonObject, "result_code");
                     String resultMsg = getAsString(jsonObject, "result_msg");
                     throw new SungrowApiException("HTTP Status " + send.statusCode() + ", Message: " + resultMsg, resultCode, requestSerial);
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     // NOP - no Json from server...
                     throw new SungrowApiException("HTTP Status " + send.statusCode() + ", Body: " + jsonResponse);
                 }
@@ -132,14 +127,13 @@ abstract class BaseSungrowClient {
 
     private String getAsString(JsonObject jsonObject, String memberName) {
         JsonPrimitive jsonPrimitive = jsonObject.getAsJsonPrimitive(memberName);
-        if(jsonPrimitive != null) {
+        if (jsonPrimitive != null) {
             if (jsonPrimitive.isString()) {
                 return jsonPrimitive.getAsString();
             } else {
                 return jsonPrimitive.toString();
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -152,7 +146,7 @@ abstract class BaseSungrowClient {
         headers.add(secretKey);
         headers.add("sys_code");
         headers.add("901");
-        if(encryptionUtility != null) {
+        if (encryptionUtility != null) {
             headers.add("x-random-secret-key");
             headers.add(encryptionUtility.createRandomPublicKey());
         }

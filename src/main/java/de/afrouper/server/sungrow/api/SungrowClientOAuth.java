@@ -10,7 +10,9 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 public class SungrowClientOAuth extends BaseSungrowClient implements Closeable {
@@ -39,9 +41,9 @@ public class SungrowClientOAuth extends BaseSungrowClient implements Closeable {
         json.addProperty("redirect_uri", redirectUrl);
 
         tokenResponse = executeRequest("/openapi/apiManage/token", json, TokenResponse.class);
-        if(tokenResponse.expiresIn() == null || tokenResponse.expiresIn() < 10) {
+        if (tokenResponse.expiresIn() == null || tokenResponse.expiresIn() < 10) {
             refreshToken(); //Due to a bug in iSolarCloud; expires in can be negative after login...
-            if(tokenResponse.expiresIn() == null || tokenResponse.expiresIn() < 10) {
+            if (tokenResponse.expiresIn() == null || tokenResponse.expiresIn() < 10) {
                 throw new SungrowApiException("Token expires in must be greater than 10 seconds");
             }
         }
@@ -52,10 +54,9 @@ public class SungrowClientOAuth extends BaseSungrowClient implements Closeable {
 
     @Override
     protected Optional<String> getAuthorizationHeader() {
-        if(tokenResponse != null) {
+        if (tokenResponse != null) {
             return Optional.of("Bearer " + tokenResponse.accessToken());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
