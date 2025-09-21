@@ -22,8 +22,8 @@ public class SungrowClientOAuth extends BaseSungrowClient implements Closeable {
     private List<String> plantIds;
     private Integer authorizedUser;
 
-    SungrowClientOAuth(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout, BiConsumer<URI, SungrowClientOAuth> authorizeConsumer) {
-        super(uri, appKey, secretKey, connectTimeout, requestTimeout);
+    SungrowClientOAuth(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout, Language language, BiConsumer<URI, SungrowClientOAuth> authorizeConsumer) {
+        super(uri, appKey, secretKey, connectTimeout, requestTimeout, language);
         this.authorizeConsumer = authorizeConsumer;
     }
 
@@ -40,7 +40,10 @@ public class SungrowClientOAuth extends BaseSungrowClient implements Closeable {
 
         tokenResponse = executeRequest("/openapi/apiManage/token", json, TokenResponse.class);
         if(tokenResponse.expiresIn() == null || tokenResponse.expiresIn() < 10) {
-            throw new SungrowApiException("Token expires in must be greater than 10 seconds");
+            refreshToken(); //Due to a bug in iSolarCloud; expires in can be negative after login...
+            if(tokenResponse.expiresIn() == null || tokenResponse.expiresIn() < 10) {
+                throw new SungrowApiException("Token expires in must be greater than 10 seconds");
+            }
         }
         plantIds = tokenResponse.authorizedPlantIds();
         authorizedUser = tokenResponse.authorizedUser();
@@ -74,8 +77,6 @@ public class SungrowClientOAuth extends BaseSungrowClient implements Closeable {
         json.addProperty("refresh_token", tokenResponse.refreshToken());
 
         tokenResponse = executeRequest("/openapi/apiManage/refreshToken", json, TokenResponse.class);
-
-        System.out.println("Refresh: " + tokenResponse);
     }
 
     public PlantList getPlants() {

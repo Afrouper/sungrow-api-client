@@ -1,8 +1,11 @@
 package de.afrouper.server.sungrow.api;
 
+import de.afrouper.server.sungrow.api.dto.Language;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -46,6 +49,7 @@ public final class SungrowClientBuilder {
         private Duration requestTimeout = Duration.ofSeconds(30);
         private String rsaPublicKey;
         private String apiCallPassword;
+        private Language language;
 
         private Builder(URI baseUri) {
             this.baseUri = baseUri;
@@ -67,6 +71,11 @@ public final class SungrowClientBuilder {
             return this;
         }
 
+        public Builder withLanguage(Locale locale) {
+            this.language = Language.fromString(locale);
+            return this;
+        }
+
         public Builder withEncryption(String rsaPublicKey, String apiCallPassword) {
             this.rsaPublicKey = rsaPublicKey;
             this.apiCallPassword = apiCallPassword;
@@ -85,7 +94,7 @@ public final class SungrowClientBuilder {
             Objects.requireNonNull(username, "username must not be null");
             Objects.requireNonNull(password, "password must not be null");
 
-            SungrowClient sungrowClient = new SungrowClient(baseUri, appKey, secretKey, connectionTimeout, requestTimeout);
+            SungrowClient sungrowClient = new SungrowClient(baseUri, appKey, secretKey, connectionTimeout, requestTimeout, language);
             activateEncryption(sungrowClient);
 
             sungrowClient.login(username, password);
@@ -127,7 +136,7 @@ public final class SungrowClientBuilder {
         }
 
         public SungrowClientOAuth build() {
-            SungrowClientOAuth sungrowClient = new SungrowClientOAuth(builder.baseUri, builder.appKey, builder.secretKey, builder.connectionTimeout, builder.requestTimeout, authorizeConsumer);
+            SungrowClientOAuth sungrowClient = new SungrowClientOAuth(builder.baseUri, builder.appKey, builder.secretKey, builder.connectionTimeout, builder.requestTimeout, builder.language, authorizeConsumer);
             builder.activateEncryption(sungrowClient);
 
             sungrowClient.triggerLogin(authorizeUrl, redirectUri);

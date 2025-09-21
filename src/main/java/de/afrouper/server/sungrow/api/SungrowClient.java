@@ -13,8 +13,8 @@ public class SungrowClient extends BaseSungrowClient {
 
     private LoginResponse loginResponse;
 
-    SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
-        super(uri, appKey, secretKey, connectTimeout, requestTimeout);
+    SungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout, Language language) {
+        super(uri, appKey, secretKey, connectTimeout, requestTimeout, language);
     }
 
     void login(String username, String password) {

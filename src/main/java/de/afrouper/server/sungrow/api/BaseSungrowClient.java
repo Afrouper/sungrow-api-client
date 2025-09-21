@@ -26,9 +26,10 @@ abstract class BaseSungrowClient {
     private final Duration requestTimeout;
     private final URI uri;
     protected final Gson gson;
+    private final Language language;
     private EncryptionUtility encryptionUtility;
 
-    BaseSungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout) {
+    BaseSungrowClient(URI uri, String appKey, String secretKey, Duration connectTimeout, Duration requestTimeout, Language language) {
         Objects.requireNonNull(uri, "URI cannot be null");
         Objects.requireNonNull(appKey, "App key cannot be null");
         Objects.requireNonNull(secretKey, "Secret key cannot be null");
@@ -38,6 +39,12 @@ abstract class BaseSungrowClient {
         this.appKey = appKey;
         this.secretKey = secretKey;
         this.requestTimeout = requestTimeout;
+        if (language == null) {
+            this.language = Language.ENGLISH;
+        }
+        else {
+            this.language = language;
+        }
         this.httpClient = HttpClient
                 .newBuilder()
                 .connectTimeout(connectTimeout)
@@ -61,7 +68,7 @@ abstract class BaseSungrowClient {
     }
 
     protected <T> T executeRequest(String subPath, JsonObject request, Class<T> responseType) {
-        request.add("lang", gson.toJsonTree(Language.ENGLISH));
+        request.add("lang", gson.toJsonTree(language));
         request.addProperty("appkey", appKey);
         addAuthorizationData(request);
 
