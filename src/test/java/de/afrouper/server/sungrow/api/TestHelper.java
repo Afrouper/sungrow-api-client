@@ -1,10 +1,19 @@
 package de.afrouper.server.sungrow.api;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.stream.Collectors;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 
 public class TestHelper {
 
@@ -51,6 +60,31 @@ public class TestHelper {
             KeyPair pair = keyPairGen.generateKeyPair();
             return Base64.getUrlEncoder().encodeToString(pair.getPublic().getEncoded());
         } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void stub(String path, String requestFile, String responseFile) {
+        stubFor(post(urlPathMatching(path))
+                .withRequestBody(equalToJson(readResource("/" + requestFile), true, true))
+                .withHeader("x-access-key", equalTo(TestHelper.SECRET_KEY))
+                .withHeader("sys_code", equalTo("901"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readResource("/" + responseFile))
+                )
+        );
+    }
+
+    static String readResource(String name) {
+        InputStream inputStream = TestHelper.class.getResourceAsStream(name);
+        if (inputStream == null) {
+            throw new IllegalStateException("Resource not found: " + name);
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
