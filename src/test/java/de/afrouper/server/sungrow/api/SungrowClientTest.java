@@ -8,8 +8,13 @@ import de.afrouper.server.sungrow.api.dto.v1.DevicePointList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @WireMockTest
@@ -19,7 +24,7 @@ class SungrowClientTest {
 
     @BeforeEach
     void createClient(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
-        TestHelper.stub("/openapi/login", "v1/loginRequest.json", "v1/loginResponse.json");
+        stub("/openapi/login", "loginRequest.json", "loginResponse.json");
         sungrowClient = TestHelper.createTestClient(wireMockRuntimeInfo.getHttpPort());
     }
 
@@ -30,7 +35,7 @@ class SungrowClientTest {
 
     @Test
     void failLogin(WireMockRuntimeInfo wireMockRuntimeInfo) {
-        TestHelper.stub("/openapi/login", "v1/loginRequest_Fail.json", "v1/loginResponse_Fail.json");
+        stub("/openapi/login", "loginRequest_Fail.json", "loginResponse_Fail.json");
         SungrowApiException ex = assertThrows(
                 SungrowApiException.class,
                 () -> TestHelper.createFailTestClient(wireMockRuntimeInfo.getHttpPort())
@@ -41,7 +46,7 @@ class SungrowClientTest {
 
     @Test
     void plantList() {
-        TestHelper.stub("/openapi/getPowerStationList", "v1/queryPlantListRequest.json", "v1/queryPlantListResponse.json");
+        stub("/openapi/getPowerStationList", "queryPlantListRequest.json", "queryPlantListResponse.json");
 
         PlantList plantList = sungrowClient.getPlants();
         Plant plant = plantList.plants().getFirst();
@@ -52,7 +57,7 @@ class SungrowClientTest {
 
     @Test
     void basicPlantInfo() {
-        TestHelper.stub("/openapi/getPowerStationDetail", "v1/basicPlantInfoRequest.json", "v1/basicPlantInfoResponse.json");
+        stub("/openapi/getPowerStationDetail", "basicPlantInfoRequest.json", "basicPlantInfoResponse.json");
 
         BasicPlantInfo basicPlantInfo = sungrowClient.getBasicPlantInfo("B2313140126");
         assertEquals(11000, basicPlantInfo.designCapacity());
@@ -61,7 +66,7 @@ class SungrowClientTest {
 
     @Test
     void deviceList() {
-        TestHelper.stub("/openapi/getDeviceList", "v1/queryDeviceListRequest.json", "v1/queryDeviceListResponse.json");
+        stub("/openapi/getDeviceList", "queryDeviceListRequest.json", "queryDeviceListResponse.json");
 
         DeviceList deviceList = sungrowClient.getDevices("689661");
         assertEquals(5, deviceList.rowCount());
@@ -69,7 +74,7 @@ class SungrowClientTest {
 
     @Test
     void pointInformationList() {
-        TestHelper.stub("/openapi/getOpenPointInfo", "v1/getOpenPointInfoRequest.json", "v1/getOpenPointInfoResponse.json");
+        stub("/openapi/getOpenPointInfo", "getOpenPointInfoRequest.json", "getOpenPointInfoResponse.json");
 
         DevicePointInfoList openPointInfo = sungrowClient.getOpenPointInfo(DeviceType.Inverter, "367701");
         assertEquals(4, openPointInfo.devicePointInfoList().size());
@@ -77,7 +82,7 @@ class SungrowClientTest {
 
     @Test
     void deviceRealTimeData() {
-        TestHelper.stub("/openapi/getDeviceRealTimeData", "v1/deviceRealTimeDataRequest.json", "v1/deviceRealTimeDataResponse.json");
+        stub("/openapi/getDeviceRealTimeData", "deviceRealTimeDataRequest.json", "deviceRealTimeDataResponse.json");
 
         DevicePointList deviceRealTimeData = sungrowClient.getDeviceRealTimeData(DeviceType.Plant,
                 Arrays.asList("972018_11_0_0",
@@ -133,5 +138,30 @@ class SungrowClientTest {
                 Arrays.asList("83022", "83033"));
 
         assertEquals(50, deviceRealTimeData.devicePointList().size());
+    }
+
+    private void stub(String path, String requestFile, String responseFile) {
+        stubFor(post(urlPathMatching(path))
+                .withRequestBody(equalToJson(readResource("/" + requestFile), true, true))
+                .withHeader("x-access-key", equalTo(TestHelper.SECRET_KEY))
+                .withHeader("sys_code", equalTo("901"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readResource("/" + responseFile))
+                )
+        );
+    }
+
+    private String readResource(String name) {
+        InputStream inputStream = getClass().getResourceAsStream(name);
+        if (inputStream == null) {
+            throw new IllegalStateException("Resource not found: " + name);
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
