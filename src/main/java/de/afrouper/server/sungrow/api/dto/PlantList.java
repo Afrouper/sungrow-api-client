@@ -9,4 +9,5 @@ public record PlantList(
 
         @SerializedName("pageList")
         List<Plant> plants
-) {}
+) {
+}

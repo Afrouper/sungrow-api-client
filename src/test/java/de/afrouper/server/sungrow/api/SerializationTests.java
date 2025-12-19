@@ -15,7 +15,7 @@ public class SerializationTests {
 
     private final Gson gson;
 
-    SerializationTests(){
+    SerializationTests() {
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(DevicePoint.class, new DevicePointAdapter())
@@ -36,7 +36,7 @@ public class SerializationTests {
     }
 
     @Test
-    void deviceList(){
+    void deviceList() {
         Map<String, DevicePointInfo> points = new HashMap<>();
         points.put("p1", new DevicePointInfo(
                 "p1",

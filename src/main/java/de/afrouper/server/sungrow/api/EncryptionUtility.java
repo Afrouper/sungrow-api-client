@@ -29,7 +29,7 @@ class EncryptionUtility {
         Objects.requireNonNull(rsaPublicKey, "RSA public key cannot be null");
         Objects.requireNonNull(password, "Password cannot be null");
         this.rsaPublicKey = rsaPublicKey;
-        byte[] passwordBytes = getSecretKey(password) ;
+        byte[] passwordBytes = getSecretKey(password);
         secretKey = new SecretKeySpec(passwordBytes, "AES");
     }
 
@@ -37,7 +37,7 @@ class EncryptionUtility {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(decoder.decode(rsaPublicKey));
-            RSAPublicKey key = (RSAPublicKey)keyFactory.generatePublic(x509KeySpec);
+            RSAPublicKey key = (RSAPublicKey) keyFactory.generatePublic(x509KeySpec);
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] bytes = rsaSplitCodec(cipher, Cipher.ENCRYPT_MODE, secretKey.getEncoded(), key.getModulus().bitLength());
@@ -55,13 +55,13 @@ class EncryptionUtility {
     }
 
     /**
-     *AES encryption rule：
-     *Encryption mode：ECB
-     *Padding method：pkcs5padding
-     *data block：128 bit
-     *Offset：no offset
-     *Output：hex
-     *Character set：utf8 encoding
+     * AES encryption rule：
+     * Encryption mode：ECB
+     * Padding method：pkcs5padding
+     * data block：128 bit
+     * Offset：no offset
+     * Output：hex
+     * Character set：utf8 encoding
      **/
     String encrypt(String content) {
         try {
@@ -75,12 +75,12 @@ class EncryptionUtility {
     }
 
     /**
-     *Decryption mode：ECB
-     *Padding method：pkcs5padding
-     *Data block：128 bit
-     *Offset：no offset
-     *Output：hex
-     *Character set：utf8 encoding;
+     * Decryption mode：ECB
+     * Padding method：pkcs5padding
+     * Data block：128 bit
+     * Offset：no offset
+     * Output：hex
+     * Character set：utf8 encoding;
      **/
     String decrypt(String content) {
         try {
@@ -97,19 +97,19 @@ class EncryptionUtility {
 
     private byte[] rsaSplitCodec(Cipher cipher, int opmode, byte[] datas, int keySize) throws IOException, GeneralSecurityException {
         int maxBlock;
-        if(opmode == Cipher.DECRYPT_MODE){
+        if (opmode == Cipher.DECRYPT_MODE) {
             maxBlock = keySize / 8;
-        }else{
+        } else {
             maxBlock = keySize / 8 - 11;
         }
-        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             int offSet = 0;
             byte[] buff;
             int i = 0;
-            while(datas.length > offSet){
-                if(datas.length - offSet > maxBlock){
+            while (datas.length > offSet) {
+                if (datas.length - offSet > maxBlock) {
                     buff = cipher.doFinal(datas, offSet, maxBlock);
-                }else{
+                } else {
                     buff = cipher.doFinal(datas, offSet, datas.length - offSet);
                 }
                 out.write(buff, 0, buff.length);
@@ -124,10 +124,10 @@ class EncryptionUtility {
         final byte paddingChar = '0';
         byte[] realKey = new byte[16];
         byte[] byteKey = key.getBytes(StandardCharsets.UTF_8);
-        for (int i =0;i<realKey.length;i++){
-            if (i<byteKey.length){
+        for (int i = 0; i < realKey.length; i++) {
+            if (i < byteKey.length) {
                 realKey[i] = byteKey[i];
-            }else{
+            } else {
                 realKey[i] = paddingChar;
             }
         }

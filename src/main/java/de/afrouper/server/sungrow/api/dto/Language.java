@@ -2,6 +2,8 @@ package de.afrouper.server.sungrow.api.dto;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Locale;
+
 public enum Language {
 
     @SerializedName("_zh_CN")
@@ -31,5 +33,36 @@ public enum Language {
     @SerializedName("_pl_PL")
     POLISH,
     @SerializedName("_vi_VN")
-    VIETNAMESE
+    VIETNAMESE;
+
+    public static Language fromString(Locale locale) {
+        switch (locale.getLanguage()) {
+            case "zh":
+                return CHINESE_SIMPLE;
+            case "en":
+                return ENGLISH;
+            case "ja":
+                return JAPANESE;
+            case "es":
+                return SPANISH;
+            case "de":
+                return GERMAN;
+            case "pt":
+                return PORTUGUESE;
+            case "fr":
+                return FRENCH;
+            case "it":
+                return ITALIAN;
+            case "kr":
+                return KOREAN;
+            case "nl":
+                return DUTCH;
+            case "pl":
+                return POLISH;
+            case "vi":
+                return VIETNAMESE;
+            default:
+                return ENGLISH;
+        }
+    }
 }

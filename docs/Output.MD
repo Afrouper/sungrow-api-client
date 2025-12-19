@@ -1,6 +1,6 @@
 ```terminaloutput
 ********** Start Sungrow Client **********
-PlantList[rowCount=1, plants=[Plant[plantName=....]]
+PlantList[rowCount=1, plants=[Plant[plantName=..., plantType=Residential_Energy_Storage_Plant, plantId=5..., connectType=Self_Used_Feedin, totalEnergy=UnitValuePair[unit=MWh, value=67.67], currentPowerUpdateTime=2025-08-23T17:31:56, currentPower=UnitValuePair[unit=kW, value=1.931], co2ReduceTotal=UnitValuePair[unit=kg, value=13691], todayIncome=UnitValuePair[unit=EUR, value=7.457], equivalentHour=UnitValuePair[unit=Hour, value=3.15], totalIncome=UnitValuePair[unit=EUR, value=2...], totalCapcity=UnitValuePair[unit=kWp, value=1...], todayEnergy=UnitValuePair[unit=kWh, value=49], co2Reduce=UnitValuePair[unit=kg, value=4...], alarmCount=0, latitude=5..., longitude=7...]]]
 BasicPlantInfo[plantId=...., plantPs_key=...., connectType=SELF_WITH_GRID, description=null, designCapacity=15580, plantLocation=..., plantName=..., plantStatus=ONLINE, plantType=Residential_Energy_Storage_Plant, plantTypeName=Residential storage]
 Reading Devices for Plant: My Plant
 Handling 4 devices for My Plant
