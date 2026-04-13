@@ -86,7 +86,7 @@ jobs:
           EOF
 
       - name: Create release (and upload JARs)
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ env.VERSION }}
           name: Release ${{ env.VERSION }}
